@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { ProviderKey, AnalysisResult } from "./types";
+import type { ProviderKey } from "./types";
 import { DEFAULT_PROVIDER } from "./constants/providers";
 import { Header } from "./components/layout/Header";
 import { ProviderSelector } from "./components/settings/ProviderSelector";
