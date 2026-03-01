@@ -21,8 +21,8 @@ async def fetch_article_text(url: str) -> Optional[str]:
     try:
         headers = {
             "User-Agent": (
-                "Mozilla/5.0 (compatible; UCLFantasyScout/1.0; "
-                "+https://github.com/rahbarahsan/ucl-fantasy-scout)"
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             ),
         }
         async with httpx.AsyncClient(timeout=_TIMEOUT, follow_redirects=True) as client:
