@@ -54,30 +54,30 @@ async def _serpapi_search(
         "tbs": f"qdr:d{recency_days}",
         "engine": "google",
     }
-    
+
     # Console output for debugging
     print(f"\n🔍 SerpAPI SEARCH CALLED")
     print(f"   Query: {query}")
     print(f"   Results: {num_results}")
     print(f"   Recency: {recency_days} days")
-    
+
     try:
         async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
             resp = await client.get(_SERP_API_URL, params=params)
             resp.raise_for_status()
             data = resp.json()
-            
+
         # Log search results
         result_count = len(data.get("organic_results", []))
         logger.info(
             "serpapi_search_success",
             query=query,
             results_returned=result_count,
-            search_time_ms=data.get("search_metadata", {}).get("total_time_taken", 0)
+            search_time_ms=data.get("search_metadata", {}).get("total_time_taken", 0),
         )
         print(f"   ✅ Results Found: {result_count}")
         print()
-        
+
     except httpx.HTTPError as exc:
         logger.error("serpapi_request_failed", query=query, error=str(exc))
         print(f"   ❌ Error: {str(exc)}\n")

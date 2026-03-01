@@ -58,14 +58,14 @@ async def run_analysis(
     """
     # Initialize token tracker for this analysis
     tracker = reset_tracker(provider_name)
-    
+
     # Clear any stale cache (session-based)
     print("\n" + "=" * 70)
     print("STARTING ANALYSIS PIPELINE")
     print("=" * 70)
     print(f"Provider: {provider_name.upper()}")
     print("=" * 70 + "\n")
-    
+
     provider = _get_provider(provider_name, api_key=api_key)
 
     # --- Agent 1: Squad Parser -------------------------------------------
@@ -105,7 +105,7 @@ async def run_analysis(
     logger.info("pipeline_agent_3_fixture_resolver")
     fixtures_result = await resolve_fixtures(provider, matchday, players)
     fixtures_cache_key = fixtures_result["cache_key"]
-    
+
     print(f"✅ Agent 3 (Fixture Resolver): Cached {fixtures_result['count']} fixtures")
     print(f"   Cache Key: {fixtures_cache_key}\n")
 
@@ -113,15 +113,17 @@ async def run_analysis(
     logger.info("pipeline_agent_4_preview_researcher")
     previews_result = await research_previews(provider, fixtures_cache_key)
     previews_cache_key = previews_result.get("cache_key")
-    
-    print(f"✅ Agent 4 (Preview Researcher): Cached {previews_result['count']} previews")
+
+    print(
+        f"✅ Agent 4 (Preview Researcher): Cached {previews_result['count']} previews"
+    )
     print(f"   Cache Key: {previews_cache_key}\n")
 
     # --- Agent 5: Form Analyser ------------------------------------------
     logger.info("pipeline_agent_5_form_analyser")
     form_result = await analyse_form(provider, players, fixtures_cache_key)
     form_cache_key = form_result["cache_key"]
-    
+
     print(f"✅ Agent 5 (Form Analyser): Cached {form_result['count']} form records")
     print(f"   Cache Key: {form_cache_key}\n")
 
@@ -129,7 +131,7 @@ async def run_analysis(
     logger.info("pipeline_agent_6_stats_collector")
     stats_result = await collect_stats(provider, players)
     stats_cache_key = stats_result["cache_key"]
-    
+
     print(f"✅ Agent 6 (Stats Collector): Cached {stats_result['count']} stat records")
     print(f"   Cache Key: {stats_cache_key}\n")
 
@@ -143,7 +145,7 @@ async def run_analysis(
         stats_cache_key,
     )
     verdicts_cache_key = verdicts_result["cache_key"]
-    
+
     print(f"✅ Agent 7 (Verdict Engine): Cached {verdicts_result['count']} verdicts")
     print(f"   Cache Key: {verdicts_cache_key}\n")
 
@@ -151,14 +153,16 @@ async def run_analysis(
     logger.info("pipeline_agent_8_transfer_suggester")
     suggestions_result = await suggest_transfers(provider, verdicts_cache_key)
     suggestions_cache_key = suggestions_result["cache_key"]
-    
-    print(f"✅ Agent 8 (Transfer Suggester): Cached {suggestions_result['count']} suggestions")
+
+    print(
+        f"✅ Agent 8 (Transfer Suggester): Cached {suggestions_result['count']} suggestions"
+    )
     print(f"   Cache Key: {suggestions_cache_key}\n")
-    
+
     # --- Retrieve final data from cache ----------------------------------
     verdicts = cache_manager.get(verdicts_cache_key) or []
     suggestions = cache_manager.get(suggestions_cache_key) or {}
-    
+
     # --- Print final summary statistics ----------------------------------
     tracker.print_summary()
     cache_manager.print_stats()

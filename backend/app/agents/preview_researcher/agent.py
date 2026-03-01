@@ -23,7 +23,7 @@ async def research_previews(
     Args:
         provider: AI provider instance
         fixtures: Either a cache key (str) or fixtures list (list[dict])
-    
+
     Uses web search when available, then passes results to the AI for synthesis.
     Returns: {"cache_key": "previews:...", "count": N}
     """
@@ -54,20 +54,17 @@ async def research_previews(
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     previews = _parse_response(raw)
-    
+
     # Cache the previews and return cache key
     cache_key = f"previews:agent4"
     cache_manager.set(cache_key, previews)
-    
-    logger.info("preview_researcher_done", 
-                preview_count=len(previews),
-                cache_key=cache_key)
-    
+
+    logger.info(
+        "preview_researcher_done", preview_count=len(previews), cache_key=cache_key
+    )
+
     # Return cache key instead of full data
-    return {
-        "cache_key": cache_key,
-        "count": len(previews)
-    }
+    return {"cache_key": cache_key, "count": len(previews)}
 
 
 async def _gather_search_context(

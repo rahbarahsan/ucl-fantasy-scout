@@ -26,12 +26,12 @@ async def generate_verdicts(
         previews = cache_manager.get(previews_input) or []
     else:
         previews = previews_input
-    
+
     if isinstance(form_data_input, str):
         form_data = cache_manager.get(form_data_input) or []
     else:
         form_data = form_data_input if isinstance(form_data_input, list) else []
-    
+
     if isinstance(stats_input, str):
         stats = cache_manager.get(stats_input) or []
     else:
@@ -40,11 +40,11 @@ async def generate_verdicts(
     prompt = _build_prompt(players, previews, form_data, stats)
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     verdicts = _parse_response(raw)
-    
+
     # Cache the verdicts and return cache key
     cache_key = f"verdicts:agent7:{len(players)}"
     cache_manager.set(cache_key, verdicts)
-    
+
     logger.info("verdict_engine_done", verdict_count=len(verdicts), cache_key=cache_key)
     return {"cache_key": cache_key, "count": len(verdicts)}
 

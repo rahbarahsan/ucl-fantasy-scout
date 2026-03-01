@@ -23,7 +23,7 @@ class CacheManager:
             self._hits += 1
             logger.info("cache_hit", key=key, hit_rate=f"{self.hit_rate():.1%}")
             return self._store[key]["value"]
-        
+
         self._misses += 1
         logger.debug("cache_miss", key=key, hit_rate=f"{self.hit_rate():.1%}")
         return None
@@ -33,7 +33,7 @@ class CacheManager:
         self._store[key] = {
             "value": value,
             "created_at": time.time(),
-            "size_bytes": len(json.dumps(value, default=str))
+            "size_bytes": len(json.dumps(value, default=str)),
         }
         logger.info("cache_set", key=key, size_bytes=self._store[key]["size_bytes"])
 
@@ -55,9 +55,7 @@ class CacheManager:
 
     def stats(self) -> dict[str, Any]:
         """Return cache statistics."""
-        total_size = sum(
-            v["size_bytes"] for v in self._store.values()
-        )
+        total_size = sum(v["size_bytes"] for v in self._store.values())
         return {
             "entries": len(self._store),
             "hits": self._hits,

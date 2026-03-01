@@ -24,7 +24,7 @@ async def suggest_transfers(
         verdicts = cache_manager.get(verdicts_input) or []
     else:
         verdicts = verdicts_input
-    
+
     at_risk = [v for v in verdicts if v.get("status") in ("RISK", "BENCH")]
     if not at_risk:
         logger.info("transfer_suggester_skipped", reason="no_risk_or_bench_players")
@@ -45,11 +45,11 @@ async def suggest_transfers(
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     suggestions = _parse_response(raw)
-    
+
     # Cache the suggestions and return cache key
     cache_key = f"transfers:agent8:{len(at_risk)}"
     cache_manager.set(cache_key, suggestions)
-    
+
     logger.info("transfer_suggester_done", count=len(suggestions), cache_key=cache_key)
     return {"cache_key": cache_key, "count": len(suggestions)}
 

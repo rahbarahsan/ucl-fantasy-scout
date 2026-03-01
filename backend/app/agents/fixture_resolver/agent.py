@@ -17,7 +17,7 @@ async def resolve_fixtures(
     players: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Return a cache key for fixture list for each unique club in *players*.
-    
+
     Returns: {"cache_key": "fixtures:...", "count": N}
     """
     teams = sorted({p["team"] for p in players if p.get("team")})
@@ -31,20 +31,17 @@ async def resolve_fixtures(
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     fixtures = _parse_response(raw)
-    
+
     # Cache the fixtures and return cache key
     cache_key = f"fixtures:agent3:{matchday}"
     cache_manager.set(cache_key, fixtures)
-    
-    logger.info("fixture_resolver_done", 
-                fixture_count=len(fixtures),
-                cache_key=cache_key)
-    
+
+    logger.info(
+        "fixture_resolver_done", fixture_count=len(fixtures), cache_key=cache_key
+    )
+
     # Return cache key instead of full data
-    return {
-        "cache_key": cache_key,
-        "count": len(fixtures)
-    }
+    return {"cache_key": cache_key, "count": len(fixtures)}
 
 
 def _parse_response(raw: str) -> list[dict[str, Any]]:

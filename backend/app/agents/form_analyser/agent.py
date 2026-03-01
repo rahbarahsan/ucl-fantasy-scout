@@ -43,11 +43,11 @@ async def analyse_form(
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     form_data = _parse_response(raw)
-    
+
     # Cache the form data and return cache key
     cache_key = f"form_data:agent5:{len(players)}"
     cache_manager.set(cache_key, form_data)
-    
+
     logger.info("form_analyser_done", count=len(form_data), cache_key=cache_key)
     return {"cache_key": cache_key, "count": len(form_data)}
 

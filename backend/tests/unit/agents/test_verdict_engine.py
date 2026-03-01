@@ -42,7 +42,7 @@ class TestGenerateVerdicts:
         cache_manager.set("test_previews", [])
         cache_manager.set("test_form", [])
         cache_manager.set("test_stats", [])
-        
+
         mock_provider.complete.return_value = (
             '{"verdicts": [{"name": "Haaland", "team": "Man City", '
             '"position": "FWD", "status": "START", "confidence": "HIGH", '
@@ -59,7 +59,7 @@ class TestGenerateVerdicts:
         assert isinstance(result, dict)
         assert "cache_key" in result
         assert result["count"] == 1
-        
+
         # Verify verdicts were cached
         cached_verdicts = cache_manager.get(result["cache_key"])
         assert len(cached_verdicts) == 1
@@ -75,7 +75,7 @@ class TestGenerateVerdicts:
         cache_manager.set("test_previews", [])
         cache_manager.set("test_form", [])
         cache_manager.set("test_stats", [])
-        
+
         mock_provider.complete.return_value = "not json"
         result = await generate_verdicts(
             mock_provider,

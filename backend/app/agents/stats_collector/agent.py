@@ -30,11 +30,11 @@ async def collect_stats(
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     stats = _parse_response(raw)
-    
+
     # Cache the stats and return cache key
     cache_key = f"stats:agent6:{len(players)}"
     cache_manager.set(cache_key, stats)
-    
+
     logger.info("stats_collector_done", count=len(stats), cache_key=cache_key)
     return {"cache_key": cache_key, "count": len(stats)}
 

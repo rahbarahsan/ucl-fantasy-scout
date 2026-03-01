@@ -8,13 +8,13 @@ logger = get_logger(__name__)
 # Provider pricing (as of 2026-02-28)
 PRICING = {
     "anthropic": {
-        "input": 3.00,      # $3 per 1M input tokens
-        "output": 15.00,    # $15 per 1M output tokens
+        "input": 3.00,  # $3 per 1M input tokens
+        "output": 15.00,  # $15 per 1M output tokens
     },
     "gemini": {
-        "input": 0.075,     # $0.075 per 1M input tokens
-        "output": 0.30,     # $0.30 per 1M output tokens
-    }
+        "input": 0.075,  # $0.075 per 1M input tokens
+        "output": 0.30,  # $0.30 per 1M output tokens
+    },
 }
 
 
@@ -34,10 +34,7 @@ class TokenUsageTracker:
         if agent_name:
             self.agents_called.append(agent_name)
             logger.debug(
-                "tokens_input",
-                agent=agent_name,
-                count=count,
-                total=self.input_tokens
+                "tokens_input", agent=agent_name, count=count, total=self.input_tokens
             )
 
     def add_output(self, count: int, agent_name: str = "") -> None:
@@ -45,10 +42,7 @@ class TokenUsageTracker:
         self.output_tokens += count
         if agent_name:
             logger.debug(
-                "tokens_output",
-                agent=agent_name,
-                count=count,
-                total=self.output_tokens
+                "tokens_output", agent=agent_name, count=count, total=self.output_tokens
             )
 
     def total_tokens(self) -> int:
@@ -58,10 +52,10 @@ class TokenUsageTracker:
     def cost_usd(self) -> float:
         """Calculate cost in USD."""
         pricing = PRICING.get(self.provider_name, PRICING["anthropic"])
-        
+
         input_cost = (self.input_tokens / 1_000_000) * pricing["input"]
         output_cost = (self.output_tokens / 1_000_000) * pricing["output"]
-        
+
         return input_cost + output_cost
 
     def print_summary(self) -> None:
@@ -84,7 +78,7 @@ class TokenUsageTracker:
             "output_tokens": self.output_tokens,
             "total_tokens": self.total_tokens(),
             "cost_usd": self.cost_usd(),
-            "agents_called": len(set(self.agents_called))
+            "agents_called": len(set(self.agents_called)),
         }
 
 
