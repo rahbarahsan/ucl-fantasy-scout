@@ -37,16 +37,15 @@ class TestE2EAnalysis:
     """Analysis endpoint smoke tests."""
 
     @pytest.mark.asyncio
-    async def test_analyse_missing_key_returns_401(self) -> None:
-        """POST /api/analyse without a key should return 401."""
-        image_b64 = base64.b64encode(_TINY_PNG).decode()
+    async def test_analyse_returns_400_on_invalid_image(self) -> None:
+        """Invalid image should return 400."""
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             resp = await client.post(
                 "/api/analyse",
                 json={
-                    "image_base64": image_b64,
+                    "image_base64": "not-valid-base64!@#$%",
                     "provider": "anthropic",
                 },
             )
-        assert resp.status_code == 401
+        assert resp.status_code == 400

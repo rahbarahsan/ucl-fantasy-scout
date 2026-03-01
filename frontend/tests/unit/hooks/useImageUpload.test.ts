@@ -2,17 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useImageUpload } from "../../../src/hooks/useImageUpload";
 
-// Mock FileReader
-const mockReadAsDataURL = vi.fn();
-class MockFileReader {
-  result: string | null = null;
-  onload: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  readAsDataURL = mockReadAsDataURL;
-}
-
-vi.stubGlobal("FileReader", MockFileReader);
-
 describe("useImageUpload", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -20,9 +9,10 @@ describe("useImageUpload", () => {
 
   it("starts with empty state", () => {
     const { result } = renderHook(() => useImageUpload());
-    expect(result.current.imageData).toBeNull();
+    expect(result.current.imageBase64).toBeNull();
     expect(result.current.error).toBeNull();
-    expect(result.current.preview).toBeNull();
+    expect(result.current.fileName).toBeNull();
+    expect(result.current.isLoading).toBe(false);
   });
 
   it("rejects non-image files", () => {
@@ -34,18 +24,18 @@ describe("useImageUpload", () => {
     });
 
     expect(result.current.error).toBeTruthy();
-    expect(result.current.imageData).toBeNull();
+    expect(result.current.imageBase64).toBeNull();
   });
 
-  it("clears state on reset", () => {
+  it("clears state on clear()", () => {
     const { result } = renderHook(() => useImageUpload());
 
     act(() => {
-      result.current.reset();
+      result.current.clear();
     });
 
-    expect(result.current.imageData).toBeNull();
+    expect(result.current.imageBase64).toBeNull();
     expect(result.current.error).toBeNull();
-    expect(result.current.preview).toBeNull();
+    expect(result.current.fileName).toBeNull();
   });
 });
