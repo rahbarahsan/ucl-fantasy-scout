@@ -126,19 +126,33 @@ Frontend at http://localhost, backend at http://localhost:8000.
 
 ## Testing
 
+### Unit & Integration Tests (CI/CD automated)
+
 ```bash
-# Backend
+# Backend unit & integration tests
 cd backend
 pip install -r requirements-dev.txt
-pytest tests/ -v
+pytest tests/ -v --ignore=tests/e2e
 
 # Frontend unit tests
 cd frontend
-npm test
+npm test -- --run
+```
 
-# Frontend E2E
+### E2E Tests (Local only, requires API key)
+
+E2E tests are **excluded from CI/CD** to preserve API key quota. Run locally with explicit consent:
+
+```bash
+# Backend E2E tests (uses actual API calls)
+cd backend
+export ANTHROPIC_API_KEY=your-key-here  # or GEMINI_API_KEY
+pytest tests/e2e/ -v
+
+# Frontend E2E tests (requires Playwright)
+cd frontend
 npx playwright install
-npm run e2e
+npx playwright test
 ```
 
 ## Project Structure
