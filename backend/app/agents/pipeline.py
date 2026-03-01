@@ -10,6 +10,7 @@ from app.agents.squad_parser.agent import parse_squad
 from app.agents.stats_collector.agent import collect_stats
 from app.agents.transfer_suggester.agent import suggest_transfers
 from app.agents.verdict_engine.agent import generate_verdicts
+from app.cache.cache_manager import cache_manager
 from app.config import settings
 from app.providers.anthropic import AnthropicProvider
 from app.providers.base import AIProvider
@@ -21,6 +22,7 @@ from app.schemas.analysis import (
     PlayerResult,
 )
 from app.utils.logger import get_logger
+from app.utils.token_tracker import reset_tracker
 
 logger = get_logger(__name__)
 
@@ -52,7 +54,18 @@ async def run_analysis(
     """Execute the full agent pipeline and return a structured report.
 
     Returns a ``MatchdayClarification`` if the matchday cannot be determined.
+    Caches agent outputs and prints token usage/cost summary.
     """
+    # Initialize token tracker for this analysis
+    tracker = reset_tracker(provider_name)
+    
+    # Clear any stale cache (session-based)
+    print("\n" + "=" * 70)
+    print("STARTING ANALYSIS PIPELINE")
+    print("=" * 70)
+    print(f"Provider: {provider_name.upper()}")
+    print("=" * 70 + "\n")
+    
     provider = _get_provider(provider_name, api_key=api_key)
 
     # --- Agent 1: Squad Parser -------------------------------------------
@@ -90,33 +103,65 @@ async def run_analysis(
 
     # --- Agent 3: Fixture Resolver ---------------------------------------
     logger.info("pipeline_agent_3_fixture_resolver")
-    fixtures = await resolve_fixtures(provider, matchday, players)
+    fixtures_result = await resolve_fixtures(provider, matchday, players)
+    fixtures_cache_key = fixtures_result["cache_key"]
+    
+    print(f"✅ Agent 3 (Fixture Resolver): Cached {fixtures_result['count']} fixtures")
+    print(f"   Cache Key: {fixtures_cache_key}\n")
 
     # --- Agent 4: Preview Researcher -------------------------------------
     logger.info("pipeline_agent_4_preview_researcher")
-    previews = await research_previews(provider, fixtures)
+    previews_result = await research_previews(provider, fixtures_cache_key)
+    previews_cache_key = previews_result.get("cache_key")
+    
+    print(f"✅ Agent 4 (Preview Researcher): Cached {previews_result['count']} previews")
+    print(f"   Cache Key: {previews_cache_key}\n")
 
     # --- Agent 5: Form Analyser ------------------------------------------
     logger.info("pipeline_agent_5_form_analyser")
-    form_data = await analyse_form(provider, players, fixtures)
+    form_result = await analyse_form(provider, players, fixtures_cache_key)
+    form_cache_key = form_result["cache_key"]
+    
+    print(f"✅ Agent 5 (Form Analyser): Cached {form_result['count']} form records")
+    print(f"   Cache Key: {form_cache_key}\n")
 
     # --- Agent 6: Stats Collector ----------------------------------------
     logger.info("pipeline_agent_6_stats_collector")
-    stats = await collect_stats(provider, players)
+    stats_result = await collect_stats(provider, players)
+    stats_cache_key = stats_result["cache_key"]
+    
+    print(f"✅ Agent 6 (Stats Collector): Cached {stats_result['count']} stat records")
+    print(f"   Cache Key: {stats_cache_key}\n")
 
     # --- Agent 7: Verdict Engine -----------------------------------------
     logger.info("pipeline_agent_7_verdict_engine")
-    verdicts = await generate_verdicts(
+    verdicts_result = await generate_verdicts(
         provider,
         players,
-        previews,
-        form_data,
-        stats,
+        previews_cache_key,
+        form_cache_key,
+        stats_cache_key,
     )
+    verdicts_cache_key = verdicts_result["cache_key"]
+    
+    print(f"✅ Agent 7 (Verdict Engine): Cached {verdicts_result['count']} verdicts")
+    print(f"   Cache Key: {verdicts_cache_key}\n")
 
     # --- Agent 8: Transfer Suggester -------------------------------------
     logger.info("pipeline_agent_8_transfer_suggester")
-    suggestions = await suggest_transfers(provider, verdicts)
+    suggestions_result = await suggest_transfers(provider, verdicts_cache_key)
+    suggestions_cache_key = suggestions_result["cache_key"]
+    
+    print(f"✅ Agent 8 (Transfer Suggester): Cached {suggestions_result['count']} suggestions")
+    print(f"   Cache Key: {suggestions_cache_key}\n")
+    
+    # --- Retrieve final data from cache ----------------------------------
+    verdicts = cache_manager.get(verdicts_cache_key) or []
+    suggestions = cache_manager.get(suggestions_cache_key) or {}
+    
+    # --- Print final summary statistics ----------------------------------
+    tracker.print_summary()
+    cache_manager.print_stats()
 
     # --- Assemble final response -----------------------------------------
     return _build_response(

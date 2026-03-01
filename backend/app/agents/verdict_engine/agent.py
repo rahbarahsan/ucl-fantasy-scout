@@ -1,9 +1,10 @@
 """Verdict Engine agent — produces START / RISK / BENCH for each player."""
 
 import json
-from typing import Any
+from typing import Any, Union
 
 from app.agents.verdict_engine.prompts import SYSTEM_PROMPT
+from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
 from app.utils.logger import get_logger
 
@@ -13,18 +14,39 @@ logger = get_logger(__name__)
 async def generate_verdicts(
     provider: AIProvider,
     players: list[dict[str, Any]],
-    previews: list[dict[str, Any]],
-    form_data: list[dict[str, Any]],
-    stats: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
+    previews_input: Union[str, list[dict[str, Any]]],
+    form_data_input: Union[str, dict[str, Any]],
+    stats_input: Union[str, dict[str, Any]],
+) -> dict[str, Any]:
     """Synthesise all research into per-player verdicts."""
     logger.info("verdict_engine_start", player_count=len(players))
+
+    # Retrieve data from cache if cache keys provided
+    if isinstance(previews_input, str):
+        previews = cache_manager.get(previews_input) or []
+    else:
+        previews = previews_input
+    
+    if isinstance(form_data_input, str):
+        form_data = cache_manager.get(form_data_input) or []
+    else:
+        form_data = form_data_input if isinstance(form_data_input, list) else []
+    
+    if isinstance(stats_input, str):
+        stats = cache_manager.get(stats_input) or []
+    else:
+        stats = stats_input if isinstance(stats_input, list) else []
 
     prompt = _build_prompt(players, previews, form_data, stats)
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     verdicts = _parse_response(raw)
-    logger.info("verdict_engine_done", verdict_count=len(verdicts))
-    return verdicts
+    
+    # Cache the verdicts and return cache key
+    cache_key = f"verdicts:agent7:{len(players)}"
+    cache_manager.set(cache_key, verdicts)
+    
+    logger.info("verdict_engine_done", verdict_count=len(verdicts), cache_key=cache_key)
+    return {"cache_key": cache_key, "count": len(verdicts)}
 
 
 def _build_prompt(

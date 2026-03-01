@@ -1,9 +1,10 @@
 """Transfer Suggester agent — recommends replacements for RISK/BENCH players."""
 
 import json
-from typing import Any
+from typing import Any, Union
 
 from app.agents.transfer_suggester.prompts import SYSTEM_PROMPT
+from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
 from app.utils.logger import get_logger
 
@@ -12,16 +13,22 @@ logger = get_logger(__name__)
 
 async def suggest_transfers(
     provider: AIProvider,
-    verdicts: list[dict[str, Any]],
-) -> dict[str, list[dict[str, Any]]]:
+    verdicts_input: Union[str, list[dict[str, Any]]],
+) -> dict[str, Any]:
     """Return transfer suggestions keyed by player name.
 
     Only processes players with status RISK or BENCH.
     """
+    # Retrieve verdicts from cache if cache key provided
+    if isinstance(verdicts_input, str):
+        verdicts = cache_manager.get(verdicts_input) or []
+    else:
+        verdicts = verdicts_input
+    
     at_risk = [v for v in verdicts if v.get("status") in ("RISK", "BENCH")]
     if not at_risk:
         logger.info("transfer_suggester_skipped", reason="no_risk_or_bench_players")
-        return {}
+        return {"cache_key": "transfers:agent8:empty", "count": 0}
 
     logger.info("transfer_suggester_start", at_risk_count=len(at_risk))
 
@@ -37,7 +44,14 @@ async def suggest_transfers(
     )
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
-    return _parse_response(raw)
+    suggestions = _parse_response(raw)
+    
+    # Cache the suggestions and return cache key
+    cache_key = f"transfers:agent8:{len(at_risk)}"
+    cache_manager.set(cache_key, suggestions)
+    
+    logger.info("transfer_suggester_done", count=len(suggestions), cache_key=cache_key)
+    return {"cache_key": cache_key, "count": len(suggestions)}
 
 
 def _parse_response(raw: str) -> dict[str, list[dict[str, Any]]]:

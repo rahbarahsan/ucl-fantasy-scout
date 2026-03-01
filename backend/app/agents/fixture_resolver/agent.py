@@ -4,6 +4,7 @@ import json
 from typing import Any
 
 from app.agents.fixture_resolver.prompts import SYSTEM_PROMPT
+from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
 from app.utils.logger import get_logger
 
@@ -14,8 +15,11 @@ async def resolve_fixtures(
     provider: AIProvider,
     matchday: str,
     players: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    """Return a list of fixture dicts for each unique club in *players*."""
+) -> dict[str, Any]:
+    """Return a cache key for fixture list for each unique club in *players*.
+    
+    Returns: {"cache_key": "fixtures:...", "count": N}
+    """
     teams = sorted({p["team"] for p in players if p.get("team")})
     logger.info("fixture_resolver_start", matchday=matchday, team_count=len(teams))
 
@@ -27,8 +31,20 @@ async def resolve_fixtures(
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)
     fixtures = _parse_response(raw)
-    logger.info("fixture_resolver_done", fixture_count=len(fixtures))
-    return fixtures
+    
+    # Cache the fixtures and return cache key
+    cache_key = f"fixtures:agent3:{matchday}"
+    cache_manager.set(cache_key, fixtures)
+    
+    logger.info("fixture_resolver_done", 
+                fixture_count=len(fixtures),
+                cache_key=cache_key)
+    
+    # Return cache key instead of full data
+    return {
+        "cache_key": cache_key,
+        "count": len(fixtures)
+    }
 
 
 def _parse_response(raw: str) -> list[dict[str, Any]]:
