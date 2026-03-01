@@ -5,6 +5,7 @@ from typing import Any
 
 from app.agents.preview_researcher.prompts import SYSTEM_PROMPT
 from app.agents.preview_researcher.sources import PREVIEW_KEYWORDS
+from app.config import settings
 from app.providers.base import AIProvider
 from app.tools.web_search import web_search
 from app.utils.logger import get_logger
@@ -53,7 +54,12 @@ async def _gather_search_context(
         if not team or not opponent or opponent == "unknown":
             continue
         query = f"{team} vs {opponent} {PREVIEW_KEYWORDS[0]}"
-        results = await web_search(query, num_results=3, recency_days=7)
+        results = await web_search(
+            query,
+            num_results=3,
+            recency_days=7,
+            serpapi_key=settings.serpapi_key,
+        )
         for result in results:
             lines.append(
                 f"[{result.get('title', '')}] {result.get('snippet', '')} "

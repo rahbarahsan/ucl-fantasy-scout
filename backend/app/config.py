@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     anthropic_api_key: Optional[str] = None
     gemini_api_key: Optional[str] = None
 
+    # Tools
+    serpapi_key: Optional[str] = None
+
     # Encryption
     encryption_secret: str = "change-me-to-a-random-32-char-secret"
 
