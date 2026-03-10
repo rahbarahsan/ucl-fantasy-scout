@@ -76,7 +76,7 @@ test.describe("UCL Fantasy Scout E2E", () => {
       console.log('✅ Submitted matchday clarification');
       
       await page.waitForTimeout(2000);
-    } catch (error) {
+    } catch {
       console.log('ℹ️ No matchday clarification needed - analysis started directly');
     }
 
@@ -97,7 +97,7 @@ test.describe("UCL Fantasy Scout E2E", () => {
         console.log(`✅ Analysis complete - results found with selector: ${selector}`);
         resultsFound = true;
         break;
-      } catch (error) {
+      } catch {
         console.log(`⚠️ Selector not found: ${selector}`);
       }
     }
