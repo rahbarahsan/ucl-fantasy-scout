@@ -22,6 +22,10 @@ def normalize_matchday(raw_matchday: Optional[str]) -> str:
     normalized = raw_matchday.lower().strip()
     normalized = re.sub(r"\s+", " ", normalized)  # Collapse multiple spaces
 
+    # Return empty if only whitespace
+    if not normalized:
+        return ""
+
     # Remove common filler words
     normalized = normalized.replace("the ", "")
     normalized = normalized.replace("knockout ", "")
@@ -88,8 +92,8 @@ def _normalize_stage(stage: str) -> str:
     ):
         return "Semi-finals"
 
-    # Final
-    if any(x in stage for x in ["final", "f", "championship"]):
+    # Final (use word boundaries to avoid matching 'f' in words like 'format')
+    if re.search(r"\b(final|championship)\b", stage) or re.fullmatch(r"f", stage):
         return "Final"
 
     # Group stage with variations
