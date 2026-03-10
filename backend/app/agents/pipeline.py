@@ -107,6 +107,12 @@ async def run_analysis(
     # --- Agent 3: Fixture Resolver ---------------------------------------
     logger.info("pipeline_agent_3_fixture_resolver")
     fixtures_result = await resolve_fixtures(provider, matchday, players)
+
+    # Check if fixture resolver failed
+    if fixtures_result.get("error"):
+        logger.error("pipeline_fixture_resolver_failed", error=fixtures_result["error"])
+        raise ValueError(fixtures_result["error"])
+
     fixtures_cache_key = fixtures_result["cache_key"]
 
     print(f"✅ Agent 3 (Fixture Resolver): Cached {fixtures_result['count']} fixtures")
