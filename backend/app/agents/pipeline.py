@@ -60,7 +60,9 @@ async def run_analysis(
     # Initialize token tracker for this analysis
     tracker = reset_tracker(provider_name)
 
-    # Clear any stale cache (session-based)
+    # Clear any stale cache from previous runs
+    cache_manager.clear()
+
     print("\n" + "=" * 70)
     print("STARTING ANALYSIS PIPELINE")
     print("=" * 70)

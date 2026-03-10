@@ -20,11 +20,11 @@ Server starts at `http://localhost:8000`.
 
 ## API Endpoints
 
-| Method | Path             | Description                            |
-|--------|------------------|----------------------------------------|
-| GET    | `/health`        | Health check + provider status         |
-| POST   | `/api/analyse`   | Upload squad screenshot for analysis   |
-| POST   | `/api/research`  | Ask a free-form research question      |
+| Method | Path            | Description                          |
+| ------ | --------------- | ------------------------------------ |
+| GET    | `/health`       | Health check + provider status       |
+| POST   | `/api/analyse`  | Upload squad screenshot for analysis |
+| POST   | `/api/research` | Ask a free-form research question    |
 
 ## Agent Pipeline
 
