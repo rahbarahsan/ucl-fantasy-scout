@@ -39,7 +39,12 @@ async def research_question(
         )
 
     # Gather web context
-    results = await web_search(body.question, num_results=5, recency_days=7)
+    results = await web_search(
+        body.question,
+        num_results=5,
+        recency_days=7,
+        serpapi_key=settings.serpapi_key,
+    )
     context_lines = [f"[{r['title']}] {r['snippet']} ({r['link']})" for r in results]
     web_context = "\n".join(context_lines) if context_lines else "No web results."
 

@@ -5,7 +5,9 @@ from typing import Any
 
 from app.agents.fixture_resolver.prompts import SYSTEM_PROMPT
 from app.cache.cache_manager import cache_manager
+from app.config import settings
 from app.providers.base import AIProvider
+from app.tools.web_search import web_search
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -23,10 +25,27 @@ async def resolve_fixtures(
     teams = sorted({p["team"] for p in players if p.get("team")})
     logger.info("fixture_resolver_start", matchday=matchday, team_count=len(teams))
 
+    # Search for current UCL fixtures
+    search_query = f"UEFA Champions League {matchday} fixtures schedule 2026"
+    search_results = await web_search(
+        search_query,
+        num_results=5,
+        recency_days=14,
+        serpapi_key=settings.serpapi_key,
+    )
+    
+    search_context = "\n".join(
+        f"[{r.get('title', '')}] {r.get('snippet', '')} ({r.get('link', '')})"
+        for r in search_results
+    )
+    
+    logger.info("fixture_resolver_search_complete", result_count=len(search_results))
+
     prompt = (
         f"Matchday: {matchday}\n"
         f"Teams: {', '.join(teams)}\n\n"
-        "Please provide the UCL fixture for each team on this matchday."
+        f"Web search results for current UCL fixtures:\n{search_context}\n\n"
+        "Based on the search results above, provide the UCL fixture for each team on this matchday."
     )
 
     raw = await provider.complete(prompt, system_prompt=SYSTEM_PROMPT)

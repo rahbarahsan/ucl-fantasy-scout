@@ -7,6 +7,7 @@ import google.generativeai as genai
 from app.providers.base import AIProvider
 from app.utils.image import base64_to_bytes
 from app.utils.logger import get_logger
+from app.utils.token_tracker import get_tracker
 
 logger = get_logger(__name__)
 
@@ -49,6 +50,10 @@ class GeminiProvider(AIProvider):
         image_bytes = base64_to_bytes(image_base64)
         image_part = {"mime_type": "image/png", "data": image_bytes}
         response = await model.generate_content_async([prompt, image_part])
+        
+        # Track token usage
+        self._track_usage(response, "analyse_image")
+        
         return response.text
 
     async def chat(
@@ -63,6 +68,10 @@ class GeminiProvider(AIProvider):
         # Convert from OpenAI-style messages to Gemini content list
         contents = self._convert_messages(messages)
         response = await model.generate_content_async(contents)
+        
+        # Track token usage
+        self._track_usage(response, "chat")
+        
         return self._response_to_dict(response)
 
     async def complete(
@@ -74,7 +83,24 @@ class GeminiProvider(AIProvider):
         """Simple single-turn completion."""
         model = self._get_model(system_prompt=system_prompt)
         response = await model.generate_content_async(prompt)
+        
+        # Track token usage
+        self._track_usage(response, "complete")
+        
         return response.text
+
+    # -- tracking helper --------------------------------------------------
+
+    @staticmethod
+    def _track_usage(response: Any, method: str = "") -> None:
+        """Track token usage from API response."""
+        tracker = get_tracker()
+        if tracker and hasattr(response, "usage_metadata"):
+            # Gemini uses usage_metadata instead of usage
+            metadata = response.usage_metadata
+            if hasattr(metadata, "prompt_token_count") and hasattr(metadata, "candidates_token_count"):
+                tracker.add_input(metadata.prompt_token_count, method)
+                tracker.add_output(metadata.candidates_token_count, method)
 
     # -- conversion helpers -----------------------------------------------
 

@@ -6,6 +6,7 @@ import anthropic
 
 from app.providers.base import AIProvider
 from app.utils.logger import get_logger
+from app.utils.token_tracker import get_tracker
 
 logger = get_logger(__name__)
 
@@ -55,6 +56,10 @@ class AnthropicProvider(AIProvider):
             kwargs["system"] = system_prompt
 
         response = await self._client.messages.create(**kwargs)
+        
+        # Track token usage
+        self._track_usage(response, "analyse_image")
+        
         return self._extract_text(response)
 
     async def chat(
@@ -76,6 +81,10 @@ class AnthropicProvider(AIProvider):
             kwargs["tools"] = tools
 
         response = await self._client.messages.create(**kwargs)
+        
+        # Track token usage
+        self._track_usage(response, "chat")
+        
         return self._response_to_dict(response)
 
     async def complete(
@@ -95,9 +104,21 @@ class AnthropicProvider(AIProvider):
             kwargs["system"] = system_prompt
 
         response = await self._client.messages.create(**kwargs)
+        
+        # Track token usage
+        self._track_usage(response, "complete")
+        
         return self._extract_text(response)
 
     # -- helpers ----------------------------------------------------------
+
+    @staticmethod
+    def _track_usage(response: Any, method: str = "") -> None:
+        """Track token usage from API response."""
+        tracker = get_tracker()
+        if tracker and hasattr(response, "usage"):
+            tracker.add_input(response.usage.input_tokens, method)
+            tracker.add_output(response.usage.output_tokens, method)
 
     @staticmethod
     def _extract_text(response: Any) -> str:
