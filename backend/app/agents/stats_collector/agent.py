@@ -6,6 +6,7 @@ from typing import Any
 from app.agents.stats_collector.prompts import SYSTEM_PROMPT
 from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
+from app.utils.cache_keys import build_cache_key
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -32,7 +33,7 @@ async def collect_stats(
     stats = _parse_response(raw)
 
     # Cache the stats and return cache key
-    cache_key = f"stats:agent6:{len(players)}"
+    cache_key = build_cache_key("stats:agent6", str(len(players)))
     cache_manager.set(cache_key, stats)
 
     logger.info("stats_collector_done", count=len(stats), cache_key=cache_key)

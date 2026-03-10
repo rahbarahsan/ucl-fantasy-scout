@@ -6,6 +6,7 @@ from typing import Any, Union
 from app.agents.verdict_engine.prompts import SYSTEM_PROMPT
 from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
+from app.utils.cache_keys import build_cache_key
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -42,7 +43,7 @@ async def generate_verdicts(
     verdicts = _parse_response(raw)
 
     # Cache the verdicts and return cache key
-    cache_key = f"verdicts:agent7:{len(players)}"
+    cache_key = build_cache_key("verdicts:agent7", str(len(players)))
     cache_manager.set(cache_key, verdicts)
 
     logger.info("verdict_engine_done", verdict_count=len(verdicts), cache_key=cache_key)

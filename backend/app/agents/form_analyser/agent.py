@@ -6,6 +6,7 @@ from typing import Any
 from app.agents.form_analyser.prompts import SYSTEM_PROMPT
 from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
+from app.utils.cache_keys import build_cache_key
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -45,7 +46,7 @@ async def analyse_form(
     form_data = _parse_response(raw)
 
     # Cache the form data and return cache key
-    cache_key = f"form_data:agent5:{len(players)}"
+    cache_key = build_cache_key("form_data:agent5", str(len(players)))
     cache_manager.set(cache_key, form_data)
 
     logger.info("form_analyser_done", count=len(form_data), cache_key=cache_key)

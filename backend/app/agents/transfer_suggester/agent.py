@@ -6,6 +6,7 @@ from typing import Any, Union
 from app.agents.transfer_suggester.prompts import SYSTEM_PROMPT
 from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
+from app.utils.cache_keys import build_cache_key
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -27,8 +28,14 @@ async def suggest_transfers(
 
     at_risk = [v for v in verdicts if v.get("status") in ("RISK", "BENCH")]
     if not at_risk:
-        logger.info("transfer_suggester_skipped", reason="no_risk_or_bench_players")
-        return {"cache_key": "transfers:agent8:empty", "count": 0}
+        cache_key = build_cache_key("transfers:agent8", "none")
+        cache_manager.set(cache_key, {})
+        logger.info(
+            "transfer_suggester_skipped",
+            reason="no_risk_or_bench_players",
+            cache_key=cache_key,
+        )
+        return {"cache_key": cache_key, "count": 0}
 
     logger.info("transfer_suggester_start", at_risk_count=len(at_risk))
 
@@ -47,7 +54,7 @@ async def suggest_transfers(
     suggestions = _parse_response(raw)
 
     # Cache the suggestions and return cache key
-    cache_key = f"transfers:agent8:{len(at_risk)}"
+    cache_key = build_cache_key("transfers:agent8", str(len(at_risk)))
     cache_manager.set(cache_key, suggestions)
 
     logger.info("transfer_suggester_done", count=len(suggestions), cache_key=cache_key)

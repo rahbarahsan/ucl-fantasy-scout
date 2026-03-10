@@ -23,10 +23,11 @@ Session-based in-memory cache using a global singleton pattern.
 from app.cache.cache_manager import cache_manager
 
 # Store data
-cache_manager.set("fixtures:agent3:MD5", fixtures_list)
+fixtures_key = "fixtures:agent3:round-of-16:a1b2c3d4"
+cache_manager.set(fixtures_key, fixtures_list)
 
 # Retrieve data
-fixtures = cache_manager.get("fixtures:agent3:MD5")
+fixtures = cache_manager.get(fixtures_key)
 
 # View statistics
 cache_manager.print_stats()
@@ -95,9 +96,10 @@ Every SerpAPI call logs to console and structured logs.
 Agents return cache keys instead of full data objects:
 
 ```python
-# Instead of: return full_fixtures_list
-# Now:
-cache_key = "fixtures:agent3:MD5"
+from app.utils.cache_keys import build_cache_key
+
+# Instead of returning full_fixtures_list directly:
+cache_key = build_cache_key("fixtures:agent3", matchday)
 cache_manager.set(cache_key, full_fixtures_list)
 return {"cache_key": cache_key, "count": len(full_fixtures_list)}
 ```
@@ -111,17 +113,20 @@ return {"cache_key": cache_key, "count": len(full_fixtures_list)}
 ### Cache Key Format
 
 ```
-{domain}:agent{n}:{identifier}
+{domain}:agent{n}:{context_slug}:{run_id}
 ```
 
-| Agent                 | Cache Key Pattern                 | Example               |
-| --------------------- | --------------------------------- | --------------------- |
-| 3: Fixture Resolver   | `fixtures:agent3:{matchday}`      | `fixtures:agent3:MD5` |
-| 4: Preview Researcher | `previews:agent4:{matchday}`      | `previews:agent4:MD5` |
-| 5: Form Analyser      | `form_data:agent5:{player_count}` | `form_data:agent5:11` |
-| 6: Stats Collector    | `stats:agent6:{player_count}`     | `stats:agent6:11`     |
-| 7: Verdict Engine     | `verdicts:agent7:{player_count}`  | `verdicts:agent7:11`  |
-| 8: Transfer Suggester | `transfers:agent8:{risk_count}`   | `transfers:agent8:3`  |
+- `context_slug` keeps keys human-readable (matchday, player counts, etc.)
+- `run_id` is a short random suffix (`uuid4().hex[:8]`) to guarantee isolation per analysis
+
+| Agent                 | Cache Key Pattern                                   | Example                                           |
+| --------------------- | --------------------------------------------------- | ------------------------------------------------- |
+| 3: Fixture Resolver   | `fixtures:agent3:{matchday_slug}:{run_id}`          | `fixtures:agent3:round-of-16-1st-leg:a1b2c3d4`    |
+| 4: Preview Researcher | `previews:agent4:{fixture_context}:{run_id}`        | `previews:agent4:round-of-16:bb44cc11`            |
+| 5: Form Analyser      | `form_data:agent5:{player_count}:{run_id}`          | `form_data:agent5:15:cc55dd22`                    |
+| 6: Stats Collector    | `stats:agent6:{player_count}:{run_id}`              | `stats:agent6:15:ddeeff00`                        |
+| 7: Verdict Engine     | `verdicts:agent7:{player_count}:{run_id}`           | `verdicts:agent7:15:ee66ff33`                     |
+| 8: Transfer Suggester | `transfers:agent8:{at_risk_count|none}:{run_id}`    | `transfers:agent8:6:ff77aa44` / `...:none:1122aa` |
 
 ---
 
@@ -142,7 +147,7 @@ verdicts = await generate_verdicts(provider, players, previews, form_data, stats
 
 ```python
 fixtures_result = await resolve_fixtures(provider, matchday, players)
-fixtures_key = fixtures_result["cache_key"]  # "fixtures:agent3:MD5"
+fixtures_key = fixtures_result["cache_key"]  # e.g. "fixtures:agent3:round-of-16:a1b2c3d4"
 
 previews_result = await research_previews(provider, fixtures_key)
 previews_key = previews_result["cache_key"]
@@ -163,27 +168,27 @@ verdicts_result = await generate_verdicts(
 
 ```
 Agent 3: Fixture Resolver
-├─ Output: {"cache_key": "fixtures:agent3:MD5", "count": 12}
+├─ Output: {"cache_key": "fixtures:agent3:round-of-16:a1b2c3d4", "count": 12}
 └─ Stores: 12 fixtures in cache under key
 
 Agent 4: Preview Researcher
-├─ Input: "fixtures:agent3:MD5" (string key)
+├─ Input: "fixtures:agent3:round-of-16:a1b2c3d4" (string key)
 ├─ Retrieves: 12 fixtures from cache
-└─ Output: {"cache_key": "previews:agent4:MD5", "count": 12}
+└─ Output: {"cache_key": "previews:agent4:round-of-16:bb44cc11", "count": 12}
 
 Agent 5: Form Analyser
-├─ Input: "fixtures:agent3:MD5" (uses same fixtures)
+├─ Input: "fixtures:agent3:round-of-16:a1b2c3d4" (uses same fixtures)
 ├─ Retrieves: 12 fixtures from cache
-└─ Output: {"cache_key": "form_data:agent5:11", "count": 11}
+└─ Output: {"cache_key": "form_data:agent5:11:cc55dd22", "count": 11}
 
 Agent 7: Verdict Engine
-├─ Inputs: "previews:agent4:MD5", "form_data:agent5:11", "stats:agent6:11"
+├─ Inputs: "previews:agent4:round-of-16:bb44cc11", "form_data:agent5:11:cc55dd22", "stats:agent6:11:ddeeff00"
 ├─ Retrieves: all 3 from cache
-└─ Output: {"cache_key": "verdicts:agent7:11", "count": 11}
+└─ Output: {"cache_key": "verdicts:agent7:11:ee66ff33", "count": 11}
 
 Agent 8: Transfer Suggester
-├─ Input: "verdicts:agent7:11" (retrieves from cache)
-└─ Output: {"cache_key": "transfers:agent8:3", "count": 3}
+├─ Input: "verdicts:agent7:11:ee66ff33" (retrieves from cache)
+└─ Output: {"cache_key": "transfers:agent8:3:ff77aa44", "count": 3}
 
 Pipeline
 ├─ Retrieves final verdicts and transfers from cache
@@ -216,22 +221,22 @@ Provider: ANTHROPIC
 ======================================================================
 
 ✅ Agent 3 (Fixture Resolver): Cached 12 fixtures
-   Cache Key: fixtures:agent3:MD5
+   Cache Key: fixtures:agent3:round-of-16:a1b2c3d4
 
 ✅ Agent 4 (Preview Researcher): Cached 12 previews
-   Cache Key: previews:agent4:MD5
+   Cache Key: previews:agent4:round-of-16:bb44cc11
 
 ✅ Agent 5 (Form Analyser): Cached 11 form records
-   Cache Key: form_data:agent5:11
+   Cache Key: form_data:agent5:11:cc55dd22
 
 ✅ Agent 6 (Stats Collector): Cached 11 stat records
-   Cache Key: stats:agent6:11
+   Cache Key: stats:agent6:11:ddeeff00
 
 ✅ Agent 7 (Verdict Engine): Cached 11 verdicts
-   Cache Key: verdicts:agent7:11
+   Cache Key: verdicts:agent7:11:ee66ff33
 
 ✅ Agent 8 (Transfer Suggester): Cached 3 suggestions
-   Cache Key: transfers:agent8:3
+   Cache Key: transfers:agent8:3:ff77aa44
 
 🔍 SerpAPI SEARCH CALLED
    Query: "Haaland injury status 2024"
@@ -279,7 +284,7 @@ Each log contains structured JSON events:
     {
       "timestamp": "2025-02-01T10:30:05Z",
       "event": "cache_set",
-      "key": "fixtures:agent3:MD5",
+      "key": "fixtures:agent3:round-of-16:a1b2c3d4",
       "size_bytes": 2048
     },
     {

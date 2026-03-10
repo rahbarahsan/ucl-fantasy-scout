@@ -8,6 +8,7 @@ from app.cache.cache_manager import cache_manager
 from app.config import settings
 from app.providers.base import AIProvider
 from app.tools.web_search import web_search
+from app.utils.cache_keys import build_cache_key
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -52,7 +53,7 @@ async def resolve_fixtures(
     fixtures = _parse_response(raw)
 
     # Cache the fixtures and return cache key
-    cache_key = f"fixtures:agent3:{matchday}"
+    cache_key = build_cache_key("fixtures:agent3", matchday)
     cache_manager.set(cache_key, fixtures)
 
     logger.info(

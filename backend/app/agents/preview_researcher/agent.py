@@ -9,6 +9,7 @@ from app.cache.cache_manager import cache_manager
 from app.config import settings
 from app.providers.base import AIProvider
 from app.tools.web_search import web_search
+from app.utils.cache_keys import build_cache_key
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -38,6 +39,8 @@ async def research_previews(
         fixtures_data = fixtures
         logger.info("preview_researcher_start", fixture_count=len(fixtures_data))
 
+    fixtures_data = fixtures_data or []
+
     # Build search context from web results
     search_context = await _gather_search_context(fixtures_data)
 
@@ -56,7 +59,14 @@ async def research_previews(
     previews = _parse_response(raw)
 
     # Cache the previews and return cache key
-    cache_key = f"previews:agent4"
+    fixture_hint = None
+    if fixtures_data:
+        sample = fixtures_data[0]
+        fixture_hint = (
+            sample.get("matchday")
+            or f"{sample.get('team', '')}-vs-{sample.get('opponent', '')}"
+        )
+    cache_key = build_cache_key("previews:agent4", fixture_hint, str(len(fixtures_data)))
     cache_manager.set(cache_key, previews)
 
     logger.info(
