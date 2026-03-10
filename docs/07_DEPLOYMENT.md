@@ -44,6 +44,7 @@ docker compose down
 ```
 
 **Services:**
+
 - Frontend: http://localhost (port 80)
 - Backend: http://localhost:8000
 - Health check: http://localhost:8000/health
@@ -51,11 +52,13 @@ docker compose down
 ### First-Time Setup
 
 1. **Create `.env` in project root:**
+
    ```bash
    cp .env.example .env
    ```
 
 2. **Edit `.env` with production values:**
+
    ```
    ANTHROPIC_API_KEY=sk-ant-...
    GEMINI_API_KEY=AIza...
@@ -65,6 +68,7 @@ docker compose down
    ```
 
 3. **Start containers:**
+
    ```bash
    docker compose up -d
    ```
@@ -195,6 +199,7 @@ ENCRYPTION_SECRET=prod-secret-32-chars-minimum!
 ### AWS ECS (Elastic Container Service)
 
 **Prerequisites:**
+
 - AWS account
 - ECR (Elastic Container Registry) created
 - IAM role for ECS tasks
@@ -202,14 +207,16 @@ ENCRYPTION_SECRET=prod-secret-32-chars-minimum!
 **Steps:**
 
 1. **Push images to ECR:**
+
    ```bash
    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
-   
+
    docker tag ucl-fantasy-scout-backend:latest <account>.dkr.ecr.us-east-1.amazonaws.com/ucl-fantasy-scout-backend:latest
    docker push <account>.dkr.ecr.us-east-1.amazonaws.com/ucl-fantasy-scout-backend:latest
    ```
 
 2. **Create ECS task definition:**
+
    ```json
    {
      "family": "ucl-fantasy-scout",
@@ -218,11 +225,12 @@ ENCRYPTION_SECRET=prod-secret-32-chars-minimum!
          "name": "backend",
          "image": "<account>.dkr.ecr.us-east-1.amazonaws.com/ucl-fantasy-scout-backend:latest",
          "portMappings": [{ "containerPort": 8000 }],
-         "environment": [
-           { "name": "ENVIRONMENT", "value": "production" }
-         ],
+         "environment": [{ "name": "ENVIRONMENT", "value": "production" }],
          "secrets": [
-           { "name": "ANTHROPIC_API_KEY", "valueFrom": "arn:aws:secretsmanager:..." }
+           {
+             "name": "ANTHROPIC_API_KEY",
+             "valueFrom": "arn:aws:secretsmanager:..."
+           }
          ]
        }
      ]
@@ -379,6 +387,7 @@ curl http://localhost:8000/health
 ```
 
 Response:
+
 ```json
 {
   "status": "ok",
@@ -391,11 +400,13 @@ Configure in load balancer to hit `/health` every 30 seconds.
 ### Logging
 
 **Backend logs:**
+
 ```bash
 docker compose logs backend
 ```
 
 **Structured logs (JSON):**
+
 ```json
 {
   "timestamp": "2024-01-15T10:30:00Z",
@@ -451,10 +462,10 @@ spec:
         app: backend
     spec:
       containers:
-      - name: backend
-        image: ucl-fantasy-scout-backend:latest
-        ports:
-        - containerPort: 8000
+        - name: backend
+          image: ucl-fantasy-scout-backend:latest
+          ports:
+            - containerPort: 8000
 ```
 
 ### Caching
@@ -496,6 +507,7 @@ volumes:
 ```
 
 Then connect backend:
+
 ```python
 from sqlalchemy import create_engine
 
@@ -531,14 +543,14 @@ docker run --rm -v postgres_data:/data -v $(pwd):/backup \
 
 ## Troubleshooting Deployment
 
-| Issue | Solution |
-|-------|----------|
-| Container won't start | Check logs: `docker compose logs backend` |
-| API returns 500 | Check environment variables: `docker compose config` |
-| Port already in use | Change port in `docker-compose.yml` or kill process |
-| Network errors | Ensure backend healthy: `curl http://localhost:8000/health` |
-| SSL certificate error | Verify cert files exist: `ls /etc/letsencrypt/live/` |
-| High API latency | Increase timeout, check rate limiting, scale replicas |
+| Issue                 | Solution                                                    |
+| --------------------- | ----------------------------------------------------------- |
+| Container won't start | Check logs: `docker compose logs backend`                   |
+| API returns 500       | Check environment variables: `docker compose config`        |
+| Port already in use   | Change port in `docker-compose.yml` or kill process         |
+| Network errors        | Ensure backend healthy: `curl http://localhost:8000/health` |
+| SSL certificate error | Verify cert files exist: `ls /etc/letsencrypt/live/`        |
+| High API latency      | Increase timeout, check rate limiting, scale replicas       |
 
 ---
 
@@ -592,7 +604,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   deploy:
@@ -613,6 +625,7 @@ jobs:
 ```
 
 Push tag to trigger:
+
 ```bash
 git tag v1.0.0
 git push origin v1.0.0

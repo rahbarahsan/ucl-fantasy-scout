@@ -92,12 +92,14 @@ backend/
 ### Local Development
 
 1. **Clone & navigate:**
+
    ```bash
    git clone https://github.com/rahbarahsan/ucl-fantasy-scout.git
    cd ucl-fantasy-scout/backend
    ```
 
 2. **Create virtual environment:**
+
    ```bash
    python -m venv .venv
    .venv\Scripts\activate   # Windows
@@ -105,17 +107,20 @@ backend/
    ```
 
 3. **Install dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Configure environment:**
+
    ```bash
    cp .env.example .env
    # Edit .env with your API keys
    ```
 
 5. **Run server:**
+
    ```bash
    uvicorn app.main:app --reload
    ```
@@ -132,14 +137,14 @@ backend/
 
 All configuration is managed via `.env` file. The `config.py` uses **Pydantic Settings** for validation.
 
-| Variable | Required | Type | Description | Example |
-|----------|----------|------|-------------|---------|
-| `ANTHROPIC_API_KEY` | Yes* | str | Claude API key | `sk-ant-...` |
-| `GEMINI_API_KEY` | Yes* | str | Gemini API key | `AIza...` |
-| `ENCRYPTION_SECRET` | Yes | str | AES-256 key (32+ chars) | `my-secret-key-32-characters!!` |
-| `SERPAPI_KEY` | No | str | SerpAPI for real web search | `abc123def456...` |
-| `ENVIRONMENT` | No | str | `development` or `production` | `development` |
-| `LOG_LEVEL` | No | str | `DEBUG`, `INFO`, `WARNING`, `ERROR` | `INFO` |
+| Variable            | Required | Type | Description                         | Example                         |
+| ------------------- | -------- | ---- | ----------------------------------- | ------------------------------- |
+| `ANTHROPIC_API_KEY` | Yes\*    | str  | Claude API key                      | `sk-ant-...`                    |
+| `GEMINI_API_KEY`    | Yes\*    | str  | Gemini API key                      | `AIza...`                       |
+| `ENCRYPTION_SECRET` | Yes      | str  | AES-256 key (32+ chars)             | `my-secret-key-32-characters!!` |
+| `SERPAPI_KEY`       | No       | str  | SerpAPI for real web search         | `abc123def456...`               |
+| `ENVIRONMENT`       | No       | str  | `development` or `production`       | `development`                   |
+| `LOG_LEVEL`         | No       | str  | `DEBUG`, `INFO`, `WARNING`, `ERROR` | `INFO`                          |
 
 \* At least one AI provider key is required.
 
@@ -165,10 +170,10 @@ This works both locally and in Docker.
 ```python
 class AIProvider(ABC):
     """Abstract base for AI providers (Claude, Gemini)."""
-    
+
     async def generate_text(
-        self, 
-        prompt: str, 
+        self,
+        prompt: str,
         system: str | None = None,
         temperature: float = 0.7
     ) -> str:
@@ -177,6 +182,7 @@ class AIProvider(ABC):
 ```
 
 **Implementations:**
+
 - `AnthropicProvider` — Wraps Claude Sonnet 4, uses tool_use for web searches
 - `GeminiProvider` — Wraps Gemini 2.0 Flash, uses function_calling
 
@@ -245,6 +251,7 @@ async def run_analysis_pipeline(
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -259,6 +266,7 @@ Health check endpoint.
 Analyze a squad screenshot through the full 8-agent pipeline.
 
 **Request:**
+
 ```json
 {
   "image_base64": "data:image/png;base64,iVBORw0KG...",
@@ -267,6 +275,7 @@ Analyze a squad screenshot through the full 8-agent pipeline.
 ```
 
 **Response:**
+
 ```json
 {
   "matchday": 6,
@@ -294,6 +303,7 @@ Analyze a squad screenshot through the full 8-agent pipeline.
 Ad-hoc research question endpoint.
 
 **Request:**
+
 ```json
 {
   "question": "Which teams are resting players in the Group Stage?",
@@ -302,6 +312,7 @@ Ad-hoc research question endpoint.
 ```
 
 **Response:**
+
 ```json
 {
   "answer": "Based on recent reports...",
@@ -340,6 +351,7 @@ pytest tests/unit/ -v
 ```
 
 **Coverage:**
+
 - `test_agents.py` — JSON parsing, agent logic
 - `test_utils.py` — Encryption, image validation
 
@@ -350,6 +362,7 @@ pytest tests/integration/ -v
 ```
 
 **Coverage:**
+
 - `test_pipeline.py` — Full pipeline with mocked providers
 
 ### E2E Tests (Local only)
@@ -360,6 +373,7 @@ pytest tests/e2e/ -v
 ```
 
 **Coverage:**
+
 - `test_full_analysis.py` — Real API calls, error handling
 
 ---
@@ -378,6 +392,7 @@ log.info("event", player_count=10, matchday=6)
 ```
 
 **Output:**
+
 ```json
 {
   "timestamp": "2024-01-15T10:30:00Z",

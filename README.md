@@ -12,7 +12,9 @@ An AI-powered analysis tool for **UEFA Champions League Fantasy Football**. Uplo
 ## Features
 
 ### 📸 Squad Analysis (Screenshot Upload)
+
 Upload a screenshot of your UCL Fantasy squad and get AI-driven verdicts for every player:
+
 1. **Extract** — Vision AI reads player names and positions from your screenshot
 2. **Validate** — Confirms the matchday or asks you to clarify if unclear
 3. **Research** — Searches for upcoming fixtures, injury news, expected lineups, and rotation risks
@@ -21,7 +23,9 @@ Upload a screenshot of your UCL Fantasy squad and get AI-driven verdicts for eve
 6. **Suggest** — Recommends transfer alternatives for risky or benched players at similar price points
 
 ### 💬 Ad-Hoc Research Chat
+
 Ask any UCL Fantasy question and get sourced answers:
+
 - "Which teams are resting players this round?"
 - "Is Haaland fit for the upcoming match?"
 - "Who are the top scorers in Group A?"
@@ -29,6 +33,7 @@ Ask any UCL Fantasy question and get sourced answers:
 - View sources and links for each answer
 
 ### 🔧 Core Features
+
 - **8-Agent AI Pipeline** — Squad Parser → Matchday Validator → Fixture Resolver → Preview Researcher → Form Analyser → Stats Collector → Verdict Engine → Transfer Suggester
 - **Dual AI Provider Support** — Anthropic Claude or Google Gemini (switchable in the UI)
 - **Real-Time Research** — Web searches for match previews, injury news, and rotation hints (optional SerpAPI)
@@ -113,14 +118,14 @@ Frontend at http://localhost, backend at http://localhost:8000.
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | Yes* | Anthropic Claude API key |
-| `GEMINI_API_KEY` | Yes* | Google Gemini API key |
-| `ENCRYPTION_SECRET` | Yes | 32+ char secret for AES encryption |
-| `SERPAPI_KEY` | No | SerpAPI key for real web search |
-| `ENVIRONMENT` | No | `development` (default) or `production` |
-| `LOG_LEVEL` | No | `DEBUG`, `INFO` (default), `WARNING`, `ERROR` |
+| Variable            | Required | Description                                   |
+| ------------------- | -------- | --------------------------------------------- |
+| `ANTHROPIC_API_KEY` | Yes\*    | Anthropic Claude API key                      |
+| `GEMINI_API_KEY`    | Yes\*    | Google Gemini API key                         |
+| `ENCRYPTION_SECRET` | Yes      | 32+ char secret for AES encryption            |
+| `SERPAPI_KEY`       | No       | SerpAPI key for real web search               |
+| `ENVIRONMENT`       | No       | `development` (default) or `production`       |
+| `LOG_LEVEL`         | No       | `DEBUG`, `INFO` (default), `WARNING`, `ERROR` |
 
 \* At least one AI provider key is required.
 

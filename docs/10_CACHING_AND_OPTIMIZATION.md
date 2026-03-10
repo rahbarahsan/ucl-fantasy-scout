@@ -119,14 +119,14 @@ return {"cache_key": cache_key, "count": len(full_fixtures_list)}
 - `context_slug` keeps keys human-readable (matchday, player counts, etc.)
 - `run_id` is a short random suffix (`uuid4().hex[:8]`) to guarantee isolation per analysis
 
-| Agent                 | Cache Key Pattern                                   | Example                                           |
-| --------------------- | --------------------------------------------------- | ------------------------------------------------- |
-| 3: Fixture Resolver   | `fixtures:agent3:{matchday_slug}:{run_id}`          | `fixtures:agent3:round-of-16-1st-leg:a1b2c3d4`    |
-| 4: Preview Researcher | `previews:agent4:{fixture_context}:{run_id}`        | `previews:agent4:round-of-16:bb44cc11`            |
-| 5: Form Analyser      | `form_data:agent5:{player_count}:{run_id}`          | `form_data:agent5:15:cc55dd22`                    |
-| 6: Stats Collector    | `stats:agent6:{player_count}:{run_id}`              | `stats:agent6:15:ddeeff00`                        |
-| 7: Verdict Engine     | `verdicts:agent7:{player_count}:{run_id}`           | `verdicts:agent7:15:ee66ff33`                     |
-| 8: Transfer Suggester | `transfers:agent8:{at_risk_count|none}:{run_id}`    | `transfers:agent8:6:ff77aa44` / `...:none:1122aa` |
+| Agent                 | Cache Key Pattern                            | Example                                        |
+| --------------------- | -------------------------------------------- | ---------------------------------------------- | ------------------------------------------------- |
+| 3: Fixture Resolver   | `fixtures:agent3:{matchday_slug}:{run_id}`   | `fixtures:agent3:round-of-16-1st-leg:a1b2c3d4` |
+| 4: Preview Researcher | `previews:agent4:{fixture_context}:{run_id}` | `previews:agent4:round-of-16:bb44cc11`         |
+| 5: Form Analyser      | `form_data:agent5:{player_count}:{run_id}`   | `form_data:agent5:15:cc55dd22`                 |
+| 6: Stats Collector    | `stats:agent6:{player_count}:{run_id}`       | `stats:agent6:15:ddeeff00`                     |
+| 7: Verdict Engine     | `verdicts:agent7:{player_count}:{run_id}`    | `verdicts:agent7:15:ee66ff33`                  |
+| 8: Transfer Suggester | `transfers:agent8:{at_risk_count             | none}:{run_id}`                                | `transfers:agent8:6:ff77aa44` / `...:none:1122aa` |
 
 ---
 

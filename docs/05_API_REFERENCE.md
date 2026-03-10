@@ -25,12 +25,14 @@ curl -X POST http://localhost:8000/api/analyse \
 ```
 
 **How it works:**
+
 1. Frontend encrypts the API key client-side using XOR cipher
 2. Backend receives encrypted key and decrypts it server-side (AES-256)
 3. Decrypted key is used for the current request only
 4. Original key is never stored server-side
 
 **API Key Source:**
+
 - From `X-API-Key` header (if provided)
 - Falls back to `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` from `.env`
 
@@ -45,6 +47,7 @@ curl -X POST http://localhost:8000/api/analyse \
   - `X-RateLimit-Reset: 1234567890` — Unix timestamp when reset
 
 **HTTP 429 (Too Many Requests):**
+
 ```json
 {
   "detail": "Rate limit exceeded. Try again in 60s.",
@@ -68,14 +71,14 @@ All errors follow this format:
 
 ### Common Error Codes
 
-| HTTP | Error Code | Description |
-|------|-----------|-------------|
-| 400 | `INVALID_IMAGE` | Image format not supported or corrupted |
-| 400 | `IMAGE_TOO_LARGE` | Image exceeds 20MB limit |
-| 401 | `UNAUTHORIZED` | Missing or invalid API key |
-| 429 | `RATE_LIMIT_EXCEEDED` | Too many requests |
-| 500 | `PROVIDER_ERROR` | AI provider API error |
-| 500 | `INTERNAL_ERROR` | Server error |
+| HTTP | Error Code            | Description                             |
+| ---- | --------------------- | --------------------------------------- |
+| 400  | `INVALID_IMAGE`       | Image format not supported or corrupted |
+| 400  | `IMAGE_TOO_LARGE`     | Image exceeds 20MB limit                |
+| 401  | `UNAUTHORIZED`        | Missing or invalid API key              |
+| 429  | `RATE_LIMIT_EXCEEDED` | Too many requests                       |
+| 500  | `PROVIDER_ERROR`      | AI provider API error                   |
+| 500  | `INTERNAL_ERROR`      | Server error                            |
 
 ---
 
@@ -88,6 +91,7 @@ All errors follow this format:
 Check if the backend is running.
 
 **Response:** `200 OK`
+
 ```json
 {
   "status": "ok",
@@ -96,6 +100,7 @@ Check if the backend is running.
 ```
 
 **Example:**
+
 ```bash
 curl http://localhost:8000/health
 ```
@@ -119,10 +124,10 @@ Submit a squad screenshot for analysis through the 8-agent pipeline.
 
 **Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `image_base64` | string | Yes | Base64-encoded image (PNG/JPEG/WebP/GIF) |
-| `provider` | string | No | `"anthropic"` or `"gemini"` (default: `anthropic`) |
+| Field          | Type   | Required | Description                                        |
+| -------------- | ------ | -------- | -------------------------------------------------- |
+| `image_base64` | string | Yes      | Base64-encoded image (PNG/JPEG/WebP/GIF)           |
+| `provider`     | string | No       | `"anthropic"` or `"gemini"` (default: `anthropic`) |
 
 **Response:** `200 OK`
 
@@ -165,14 +170,14 @@ Submit a squad screenshot for analysis through the 8-agent pipeline.
 
 **Player Object:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | string | Player name |
-| `position` | enum | `"DEF"`, `"MID"`, `"FWD"` |
-| `opponent` | string | Upcoming opponent |
-| `verdict` | enum | `"START"`, `"RISK"`, `"BENCH"` |
-| `confidence` | float | 0.0-1.0 confidence score |
-| `reasoning` | string | Explanation for the verdict |
+| Field                | Type           | Description                    |
+| -------------------- | -------------- | ------------------------------ |
+| `name`               | string         | Player name                    |
+| `position`           | enum           | `"DEF"`, `"MID"`, `"FWD"`      |
+| `opponent`           | string         | Upcoming opponent              |
+| `verdict`            | enum           | `"START"`, `"RISK"`, `"BENCH"` |
+| `confidence`         | float          | 0.0-1.0 confidence score       |
+| `reasoning`          | string         | Explanation for the verdict    |
 | `suggested_transfer` | string \| null | Recommended replacement player |
 
 **Error Responses:**
@@ -183,6 +188,7 @@ Submit a squad screenshot for analysis through the 8-agent pipeline.
 - `500` — Provider error (e.g., API quota exceeded)
 
 **Example:**
+
 ```bash
 curl -X POST http://localhost:8000/api/analyse \
   -H "X-API-Key: your-encrypted-key" \
@@ -212,10 +218,10 @@ Ask a question about UCL Fantasy and get a sourced answer.
 
 **Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `question` | string | Yes | Your UCL Fantasy question (1-500 chars) |
-| `provider` | string | No | `"anthropic"` or `"gemini"` (default: `anthropic`) |
+| Field      | Type   | Required | Description                                        |
+| ---------- | ------ | -------- | -------------------------------------------------- |
+| `question` | string | Yes      | Your UCL Fantasy question (1-500 chars)            |
+| `provider` | string | No       | `"anthropic"` or `"gemini"` (default: `anthropic`) |
 
 **Response:** `200 OK`
 
@@ -240,18 +246,18 @@ Ask a question about UCL Fantasy and get a sourced answer.
 
 **Response Object:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `answer` | string | Direct answer to the question |
-| `sources` | array | List of source articles |
-| `confidence` | enum | `"HIGH"`, `"MEDIUM"`, `"LOW"` |
+| Field        | Type   | Description                   |
+| ------------ | ------ | ----------------------------- |
+| `answer`     | string | Direct answer to the question |
+| `sources`    | array  | List of source articles       |
+| `confidence` | enum   | `"HIGH"`, `"MEDIUM"`, `"LOW"` |
 
 **Source Object:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | string | Article title |
-| `url` | string | Link to source |
+| Field     | Type   | Description      |
+| --------- | ------ | ---------------- |
+| `title`   | string | Article title    |
+| `url`     | string | Link to source   |
 | `snippet` | string | Relevant excerpt |
 
 **Error Responses:**
@@ -262,6 +268,7 @@ Ask a question about UCL Fantasy and get a sourced answer.
 - `500` — Provider error
 
 **Example:**
+
 ```bash
 curl -X POST http://localhost:8000/api/research \
   -H "X-API-Key: your-encrypted-key" \
@@ -278,32 +285,32 @@ curl -X POST http://localhost:8000/api/research \
 
 ### Common Headers
 
-| Header | Value | Required | Description |
-|--------|-------|----------|-------------|
-| `Content-Type` | `application/json` | Yes | Always JSON |
-| `User-Agent` | Any | No | Identifies your client |
-| `X-API-Key` | Encrypted key | No | API authentication |
+| Header         | Value              | Required | Description            |
+| -------------- | ------------------ | -------- | ---------------------- |
+| `Content-Type` | `application/json` | Yes      | Always JSON            |
+| `User-Agent`   | Any                | No       | Identifies your client |
+| `X-API-Key`    | Encrypted key      | No       | API authentication     |
 
 ### Response Headers
 
-| Header | Value | Example |
-|--------|-------|---------|
-| `X-RateLimit-Limit` | Max requests/min | `10` |
-| `X-RateLimit-Remaining` | Requests left | `5` |
-| `X-RateLimit-Reset` | Unix timestamp | `1705329000` |
-| `Content-Type` | `application/json` | Always set |
+| Header                  | Value              | Example      |
+| ----------------------- | ------------------ | ------------ |
+| `X-RateLimit-Limit`     | Max requests/min   | `10`         |
+| `X-RateLimit-Remaining` | Requests left      | `5`          |
+| `X-RateLimit-Reset`     | Unix timestamp     | `1705329000` |
+| `Content-Type`          | `application/json` | Always set   |
 
 ---
 
 ## Response Status Codes
 
-| Code | Meaning | Description |
-|------|---------|-------------|
-| 200 | OK | Request successful |
-| 400 | Bad Request | Invalid input (image too large, invalid format) |
-| 401 | Unauthorized | Missing or invalid API key |
-| 429 | Too Many Requests | Rate limit exceeded |
-| 500 | Internal Server Error | Backend error (provider API down, etc) |
+| Code | Meaning               | Description                                     |
+| ---- | --------------------- | ----------------------------------------------- |
+| 200  | OK                    | Request successful                              |
+| 400  | Bad Request           | Invalid input (image too large, invalid format) |
+| 401  | Unauthorized          | Missing or invalid API key                      |
+| 429  | Too Many Requests     | Rate limit exceeded                             |
+| 500  | Internal Server Error | Backend error (provider API down, etc)          |
 
 ---
 
@@ -339,24 +346,24 @@ for player in analysis['players']:
 ### JavaScript (fetch)
 
 ```javascript
-const imageFile = document.getElementById('upload').files[0];
+const imageFile = document.getElementById("upload").files[0];
 const reader = new FileReader();
 
 reader.onload = async (e) => {
   const imageBase64 = e.target.result;
-  
-  const response = await fetch('http://localhost:8000/api/analyse', {
-    method: 'POST',
+
+  const response = await fetch("http://localhost:8000/api/analyse", {
+    method: "POST",
     headers: {
-      'X-API-Key': 'your-encrypted-key',
-      'Content-Type': 'application/json'
+      "X-API-Key": "your-encrypted-key",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       image_base64: imageBase64,
-      provider: 'anthropic'
-    })
+      provider: "anthropic",
+    }),
   });
-  
+
   const analysis = await response.json();
   console.log(`Matchday ${analysis.matchday}:`, analysis.players);
 };
@@ -394,11 +401,13 @@ curl -X POST http://localhost:8000/api/research \
 **Policy:** 10 requests per minute per IP address
 
 **Behavior:**
+
 - Requests 1-10 succeed
 - Request 11+ returns 429 with `Retry-After: 60`
 - Counter resets every minute
 
 **Headers:**
+
 ```
 X-RateLimit-Limit: 10
 X-RateLimit-Remaining: 3
@@ -422,6 +431,7 @@ Not yet implemented. Consider for V2 if you need async analysis delivery.
 ## Changelog
 
 ### v1.0.0 (Current)
+
 - `/health` — Health check
 - `/api/analyse` — Squad analysis
 - `/api/research` — Ad-hoc research
@@ -429,6 +439,7 @@ Not yet implemented. Consider for V2 if you need async analysis delivery.
 - API key authentication
 
 ### Future (v1.1+)
+
 - Async analysis jobs
 - Squad history persistence
 - Webhook deliveries

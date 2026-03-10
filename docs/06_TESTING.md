@@ -16,6 +16,7 @@ pip install -r requirements-dev.txt
 ```
 
 **Test Dependencies:**
+
 - pytest 8.3.4
 - pytest-asyncio
 - httpx (for E2E HTTP testing)
@@ -29,6 +30,7 @@ pip install -r requirements-dev.txt
 Tests isolated functions and classes without external dependencies.
 
 **Run:**
+
 ```bash
 pytest tests/unit/ -v
 ```
@@ -36,11 +38,13 @@ pytest tests/unit/ -v
 **Coverage:**
 
 #### `test_agents.py` — Agent Logic
+
 - JSON response parsing (handles markdown fencing)
 - Fallback to empty data on parse errors
 - Agent input/output contracts
 
 **Example:**
+
 ```python
 def test_squad_parser_extracts_players():
     """Verify Squad Parser extracts player list from vision."""
@@ -50,12 +54,14 @@ def test_squad_parser_extracts_players():
 ```
 
 #### `test_utils.py` — Utility Functions
+
 - Image validation (PNG/JPEG/WebP/GIF)
 - Base64 encoding/decoding
 - Encryption (XOR + AES-256)
 - Logger initialization
 
 **Example:**
+
 ```python
 def test_image_validation_rejects_gif():
     """Large GIF should be rejected."""
@@ -73,6 +79,7 @@ def test_image_validation_rejects_gif():
 Tests multiple components working together with mocked external dependencies.
 
 **Run:**
+
 ```bash
 # Run with test API keys
 ANTHROPIC_API_KEY=test-key GEMINI_API_KEY=test-key pytest tests/integration/ -v
@@ -81,12 +88,14 @@ ANTHROPIC_API_KEY=test-key GEMINI_API_KEY=test-key pytest tests/integration/ -v
 **Coverage:**
 
 #### `test_pipeline.py` — Full Pipeline
+
 - 8-agent pipeline with mocked provider
 - Input → Output contract verification
 - Error handling between agents
 - State persistence through pipeline
 
 **Example:**
+
 ```python
 @pytest.mark.asyncio
 async def test_full_pipeline_with_squad_image():
@@ -109,6 +118,7 @@ async def test_full_pipeline_with_squad_image():
 Tests real API calls with actual AI providers (uses API quota).
 
 **Run Locally Only:**
+
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 # OR
@@ -122,6 +132,7 @@ pytest tests/e2e/ -v
 **Coverage:**
 
 #### `test_full_analysis.py` — API Endpoints
+
 - POST `/api/analyse` with valid image
 - POST `/api/research` with question
 - GET `/health` endpoint
@@ -129,6 +140,7 @@ pytest tests/e2e/ -v
 - Response schema validation
 
 **Example:**
+
 ```python
 @pytest.mark.asyncio
 async def test_analyse_endpoint_with_valid_image():
@@ -160,6 +172,7 @@ pytest tests/ -v --tb=short
 ```
 
 **Output Example:**
+
 ```
 tests/unit/test_agents.py::test_squad_parser_extracts_players PASSED
 tests/unit/test_utils.py::test_image_validation_rejects_gif PASSED
@@ -181,6 +194,7 @@ npm install
 ```
 
 **Test Dependencies:**
+
 - vitest 2.1.9
 - @testing-library/react
 - @testing-library/user-event
@@ -195,6 +209,7 @@ npm install
 Tests components and utility functions.
 
 **Run:**
+
 ```bash
 npm test -- --run  # Single run
 npm test           # Watch mode
@@ -203,12 +218,14 @@ npm test           # Watch mode
 **Coverage:**
 
 #### `components/PlayerCard.test.tsx`
+
 - Renders player verdict card
 - Displays all required fields (name, position, verdict, confidence)
 - Shows transfer suggestion when present
 - Applies correct styling for verdict status
 
 **Example:**
+
 ```typescript
 it('renders player card with START verdict', () => {
   const { getByText } = render(
@@ -221,18 +238,20 @@ it('renders player card with START verdict', () => {
       reasoning: 'Strong fixture'
     }} />
   );
-  
+
   expect(getByText('Harry Kane')).toBeInTheDocument();
   expect(getByText('START')).toBeInTheDocument();
 });
 ```
 
 #### `components/StatusBadge.test.tsx`
+
 - Renders correct color for each status
 - Shows confidence percentage
 - Handles missing confidence gracefully
 
 **Example:**
+
 ```typescript
 it('applies correct color for RISK status', () => {
   const { container } = render(<StatusBadge status="RISK" />);
@@ -241,6 +260,7 @@ it('applies correct color for RISK status', () => {
 ```
 
 #### `hooks/useImageUpload.test.ts`
+
 - Handles file upload
 - Validates file size (max 20MB)
 - Validates file format (PNG/JPEG/WebP/GIF)
@@ -248,31 +268,36 @@ it('applies correct color for RISK status', () => {
 - Clears state
 
 **Example:**
+
 ```typescript
-it('rejects file over 20MB', async () => {
+it("rejects file over 20MB", async () => {
   const { result } = renderHook(() => useImageUpload());
-  const largeFile = new File(['x'.repeat(21_000_000)], 'big.png', { type: 'image/png' });
-  
+  const largeFile = new File(["x".repeat(21_000_000)], "big.png", {
+    type: "image/png",
+  });
+
   await result.current.uploadImage(largeFile);
-  
-  expect(result.current.error).toContain('exceeds 20MB');
+
+  expect(result.current.error).toContain("exceeds 20MB");
 });
 ```
 
 #### `utils/parseResponse.test.ts`
+
 - Parses JSON from markdown code blocks
 - Handles plain JSON
 - Returns null on parse errors
 - Extracts data between triple backticks
 
 **Example:**
-```typescript
-it('parses JSON from markdown fencing', () => {
+
+````typescript
+it("parses JSON from markdown fencing", () => {
   const markdown = '```json\n{"key": "value"}\n```';
   const result = parseResponse(markdown);
-  expect(result).toEqual({ key: 'value' });
+  expect(result).toEqual({ key: "value" });
 });
-```
+````
 
 ---
 
@@ -283,11 +308,13 @@ it('parses JSON from markdown fencing', () => {
 Tests full user workflows in a real browser.
 
 **Install Playwright:**
+
 ```bash
 npx playwright install
 ```
 
 **Run:**
+
 ```bash
 # Headless mode
 npx playwright test
@@ -305,6 +332,7 @@ npx playwright test examples.spec.ts
 **Coverage:**
 
 #### `examples.spec.ts`
+
 - Upload squad screenshot
 - Confirm matchday
 - View analysis results
@@ -313,20 +341,24 @@ npx playwright test examples.spec.ts
 - Error handling (invalid image, network errors)
 
 **Example:**
+
 ```typescript
-test('full squad analysis flow', async ({ page }) => {
-  await page.goto('http://localhost:5173');
-  
+test("full squad analysis flow", async ({ page }) => {
+  await page.goto("http://localhost:5173");
+
   // Upload image
-  await page.setInputFiles('input[type="file"]', 'squad.png');
+  await page.setInputFiles('input[type="file"]', "squad.png");
   await page.click('button:has-text("Analyze")');
-  
+
   // Wait for results
   await page.waitForSelector('[data-testid="player-card"]');
-  
+
   // Verify verdict
-  const verdict = await page.locator('[data-testid="verdict"]').first().textContent();
-  expect(['START', 'RISK', 'BENCH']).toContain(verdict);
+  const verdict = await page
+    .locator('[data-testid="verdict"]')
+    .first()
+    .textContent();
+  expect(["START", "RISK", "BENCH"]).toContain(verdict);
 });
 ```
 
@@ -347,6 +379,7 @@ npm test
 ```
 
 **Output Example:**
+
 ```
  ✓ components/PlayerCard.test.tsx (3)
    ✓ renders player card correctly
@@ -382,6 +415,7 @@ Tests      11 passed (11)
 Runs on every push to `main` and `develop` branches, and on pull requests.
 
 **Jobs:**
+
 1. **backend-lint** — Black + isort + pylint
 2. **backend-test** — pytest (unit + integration, excludes E2E)
 3. **frontend-lint** — TypeScript + ESLint
@@ -389,6 +423,7 @@ Runs on every push to `main` and `develop` branches, and on pull requests.
 5. **docker-build** — Build Docker images
 
 **Skipped Tests:**
+
 - E2E tests (run locally only)
 
 ### Running Locally
@@ -409,6 +444,7 @@ docker compose build
 ### Backend
 
 1. **Always mock external APIs**
+
    ```python
    @patch('app.providers.anthropic.AnthropicProvider.generate_text')
    async def test_agent_with_mocked_llm(self, mock_generate):
@@ -417,6 +453,7 @@ docker compose build
    ```
 
 2. **Use fixtures for common data**
+
    ```python
    @pytest.fixture
    def valid_squad_image():
@@ -433,21 +470,23 @@ docker compose build
 ### Frontend
 
 1. **Query by user-visible text**
+
    ```typescript
-   expect(screen.getByText('Start Analysis')).toBeInTheDocument();
+   expect(screen.getByText("Start Analysis")).toBeInTheDocument();
    ```
 
 2. **Mock API calls**
+
    ```typescript
-   vi.mock('../services/api', () => ({
-     analyseSquad: vi.fn().mockResolvedValue(mockAnalysis)
+   vi.mock("../services/api", () => ({
+     analyseSquad: vi.fn().mockResolvedValue(mockAnalysis),
    }));
    ```
 
 3. **Test user interactions**
    ```typescript
    await userEvent.upload(input, file);
-   await userEvent.click(screen.getByRole('button', { name: /analyze/i }));
+   await userEvent.click(screen.getByRole("button", { name: /analyze/i }));
    ```
 
 ---
@@ -505,26 +544,26 @@ open coverage/index.html
 
 ## Troubleshooting Tests
 
-| Issue | Solution |
-|-------|----------|
-| E2E tests fail locally | Install Playwright: `npx playwright install` |
-| API key tests fail | Set `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` env var |
-| Port already in use | Kill process on port 8000: `lsof -ti:8000 \| xargs kill -9` |
-| Image upload fails | Ensure test image file exists: `tests/fixtures/squad.png` |
-| Type errors in tests | Run `npm run typecheck` for full diagnostics |
+| Issue                  | Solution                                                    |
+| ---------------------- | ----------------------------------------------------------- |
+| E2E tests fail locally | Install Playwright: `npx playwright install`                |
+| API key tests fail     | Set `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` env var         |
+| Port already in use    | Kill process on port 8000: `lsof -ti:8000 \| xargs kill -9` |
+| Image upload fails     | Ensure test image file exists: `tests/fixtures/squad.png`   |
+| Type errors in tests   | Run `npm run typecheck` for full diagnostics                |
 
 ---
 
 ## Local vs CI/CD Differences
 
-| Aspect | Local | CI/CD |
-|--------|-------|-------|
-| E2E backend tests | Run if API key set | Skipped (`--ignore=tests/e2e`) |
-| E2E frontend tests | Playwright required | Playwright pre-installed in Docker |
-| Python version | Any 3.11+ | Pinned to 3.11 |
-| Node version | Any 20+ | Pinned to Node 20 |
-| Dependencies | From requirements.txt | Cached via GitHub Actions |
-| Linting | Manual (`black`, `isort`, etc) | Automated on push |
+| Aspect             | Local                          | CI/CD                              |
+| ------------------ | ------------------------------ | ---------------------------------- |
+| E2E backend tests  | Run if API key set             | Skipped (`--ignore=tests/e2e`)     |
+| E2E frontend tests | Playwright required            | Playwright pre-installed in Docker |
+| Python version     | Any 3.11+                      | Pinned to 3.11                     |
+| Node version       | Any 20+                        | Pinned to Node 20                  |
+| Dependencies       | From requirements.txt          | Cached via GitHub Actions          |
+| Linting            | Manual (`black`, `isort`, etc) | Automated on push                  |
 
 ---
 

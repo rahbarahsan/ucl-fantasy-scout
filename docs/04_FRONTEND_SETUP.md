@@ -100,17 +100,20 @@ frontend/
 ### Local Development
 
 1. **Clone & navigate:**
+
    ```bash
    git clone https://github.com/rahbarahsan/ucl-fantasy-scout.git
    cd ucl-fantasy-scout/frontend
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 3. **Run dev server:**
+
    ```bash
    npm run dev
    ```
@@ -120,6 +123,7 @@ frontend/
    - Frontend automatically proxies to `http://localhost:8000` for backend
 
 4. **Build for production:**
+
    ```bash
    npm run build
    ```
@@ -137,7 +141,7 @@ frontend/
 Backend URL detected from environment:
 
 ```typescript
-const API_BASE = process.env.VITE_API_BASE || 'http://localhost:8000'
+const API_BASE = process.env.VITE_API_BASE || "http://localhost:8000";
 ```
 
 **For Docker:** Set `VITE_API_BASE=http://backend:8000` in `.env`
@@ -154,6 +158,7 @@ export function encryptKey(key: string, secret: string): string {
 ```
 
 **Security notes:**
+
 - Keys stored in browser `SessionStorage` (cleared on tab close)
 - Never logged or sent to third parties
 - Backend does server-side AES-256 encryption
@@ -169,12 +174,14 @@ export function encryptKey(key: string, secret: string): string {
 Input component for squad screenshot upload.
 
 **Features:**
+
 - Drag-and-drop support
 - File preview
 - Validation (PNG/JPEG/WebP, max 20MB)
 - Loading state during upload
 
 **Props:**
+
 ```typescript
 interface SquadUploaderProps {
   onImageSelected: (base64: string) => void;
@@ -221,6 +228,7 @@ interface StatusBadgeProps {
 ```
 
 **Colors:**
+
 - `START` → Green (#10B981)
 - `RISK` → Yellow (#F59E0B)
 - `BENCH` → Red (#EF4444)
@@ -234,6 +242,7 @@ interface StatusBadgeProps {
 Research question interface.
 
 **Features:**
+
 - Text input for questions
 - Message history
 - Source links
@@ -248,6 +257,7 @@ Research question interface.
 Manage API keys and app settings.
 
 **Features:**
+
 - Provider selection (Anthropic / Gemini)
 - API key input (encrypted storage)
 - Log level selector
@@ -264,17 +274,12 @@ Manage API keys and app settings.
 Manages image upload and validation.
 
 ```typescript
-const {
-  imageBase64,
-  fileName,
-  isLoading,
-  error,
-  uploadImage,
-  clear
-} = useImageUpload();
+const { imageBase64, fileName, isLoading, error, uploadImage, clear } =
+  useImageUpload();
 ```
 
 **Logic:**
+
 - File to Base64 conversion
 - Size validation (max 20MB)
 - Format validation (PNG/JPEG/WebP/GIF)
@@ -290,16 +295,17 @@ State machine for analysis flow.
 
 ```typescript
 const {
-  state,           // 'idle' | 'loading' | 'awaitingMatchday' | 'complete' | 'error'
+  state, // 'idle' | 'loading' | 'awaitingMatchday' | 'complete' | 'error'
   analysis,
   error,
-  submitImage,     // (base64, provider) => Promise<void>
+  submitImage, // (base64, provider) => Promise<void>
   confirmMatchday, // (matchday) => Promise<void>
-  reset
+  reset,
 } = useAnalysis();
 ```
 
 **States:**
+
 - `idle` → Ready for upload
 - `loading` → API call in progress
 - `awaitingMatchday` → Waiting for user confirmation
@@ -315,13 +321,8 @@ const {
 Handle research questions.
 
 ```typescript
-const {
-  messages,
-  isLoading,
-  error,
-  askQuestion,
-  clearMessages
-} = useAdHocResearch();
+const { messages, isLoading, error, askQuestion, clearMessages } =
+  useAdHocResearch();
 ```
 
 ---
@@ -335,18 +336,19 @@ HTTP client wrapper with Axios.
 ```typescript
 export async function analyseSquad(
   imagBase64: string,
-  provider: "anthropic" | "gemini"
-): Promise<AnalysisResult>
+  provider: "anthropic" | "gemini",
+): Promise<AnalysisResult>;
 
 export async function askResearch(
   question: string,
-  provider: "anthropic" | "gemini"
-): Promise<ResearchResponse>
+  provider: "anthropic" | "gemini",
+): Promise<ResearchResponse>;
 
-export async function checkHealth(): Promise<{ status: string }>
+export async function checkHealth(): Promise<{ status: string }>;
 ```
 
 **Features:**
+
 - Automatic error handling
 - Request timeout (30s)
 - Retry logic (3 attempts)
@@ -409,6 +411,7 @@ export default {
 ```
 
 **Features:**
+
 - Offline fallback shell
 - Service Worker caching
 - Installable on mobile
@@ -427,12 +430,14 @@ npm test -- --run
 ```
 
 **Coverage:**
+
 - `PlayerCard.test.tsx` — Component rendering & props
 - `StatusBadge.test.tsx` — Badge status & colors
 - `useImageUpload.test.ts` — Upload logic & validation
 - `parseResponse.test.ts` — JSON parsing utilities
 
 **Run in watch mode:**
+
 ```bash
 npm test
 ```
@@ -447,6 +452,7 @@ npx playwright test
 ```
 
 **Coverage:**
+
 - Full user flow: Upload → Matchday confirmation → Results
 - Error states: Invalid images, network errors
 - Settings: API key configuration

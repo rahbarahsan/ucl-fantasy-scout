@@ -11,6 +11,7 @@
 **Error:** `Connection refused` or `Port 8000 already in use`
 
 **Solution:**
+
 ```bash
 # Check if port is in use
 lsof -i :8000
@@ -31,12 +32,14 @@ uvicorn app.main:app --port 8001 --reload
 **Solution:**
 
 1. **Verify `.env` location:**
+
    ```bash
    # Should be in project root, not backend/
    ls -la .env
    ```
 
 2. **Check path in config.py:**
+
    ```python
    # backend/app/config.py
    env_path = Path(__file__).parent.parent.parent / ".env"
@@ -44,15 +47,17 @@ uvicorn app.main:app --port 8001 --reload
    ```
 
 3. **File must be readable:**
+
    ```bash
    chmod 644 .env
    ```
 
 4. **Verify format (no quotes):**
+
    ```env
    # ✅ Correct
    ANTHROPIC_API_KEY=sk-ant-...
-   
+
    # ❌ Wrong
    ANTHROPIC_API_KEY="sk-ant-..."
    ```
@@ -68,12 +73,13 @@ uvicorn app.main:app --port 8001 --reload
 1. **Check image format:**
    - Supported: PNG, JPEG, WebP, GIF
    - Not supported: TIFF, BMP, ICO
-   
+
    ```bash
    file squad.png  # Returns: squad.png: PNG image data...
    ```
 
 2. **Check image size:**
+
    ```bash
    du -h squad.png  # Returns: 500K    squad.png
    ```
@@ -95,11 +101,13 @@ uvicorn app.main:app --port 8001 --reload
 **Solution:**
 
 1. **Wait 60 seconds** — Rate limit is 10 req/min per IP
+
    ```bash
    sleep 60
    ```
 
 2. **Check remaining requests:**
+
    ```bash
    curl -i http://localhost:8000/health | grep X-RateLimit
    ```
@@ -118,20 +126,22 @@ uvicorn app.main:app --port 8001 --reload
 **Solution:**
 
 1. **Verify API key format:**
+
    ```bash
    # Anthropic
    echo $ANTHROPIC_API_KEY | head -c 10  # Should start with: sk-ant-
-   
+
    # Gemini
    echo $GEMINI_API_KEY | head -c 10     # Should start with: AIza or AIzaS...
    ```
 
 2. **Test key validity:**
+
    ```bash
    # For Anthropic
    curl -X GET https://api.anthropic.com/v1/models \
      -H "x-api-key: $ANTHROPIC_API_KEY"
-   
+
    # For Gemini
    curl "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY"
    ```
@@ -149,11 +159,13 @@ uvicorn app.main:app --port 8001 --reload
 **Solution:**
 
 Backend automatically handles invalid JSON by:
-1. Stripping markdown code fences (```json...```)
+
+1. Stripping markdown code fences (`json...`)
 2. Returning empty object if parsing fails
 3. Logging the raw response for debugging
 
 To debug:
+
 ```python
 # backend/app/agents/squad_parser.py
 import logging
@@ -172,6 +184,7 @@ logger.debug(f"Parsed result: {parsed_result}")
 **Solution:**
 
 1. **Verify ENCRYPTION_SECRET:**
+
    ```bash
    # Must be 32+ characters
    echo $ENCRYPTION_SECRET | wc -c  # Should show >= 33 (includes newline)
@@ -193,6 +206,7 @@ logger.debug(f"Parsed result: {parsed_result}")
 **Error:** `Cannot connect to database`
 
 **Solution:**
+
 ```bash
 # Verify postgres is running
 docker compose ps postgres
@@ -213,6 +227,7 @@ docker compose logs postgres
 **Error:** `Port 5173 already in use` or `EADDRINUSE`
 
 **Solution:**
+
 ```bash
 # Kill existing process
 lsof -i :5173 | tail -1 | awk '{print $2}' | xargs kill -9
@@ -230,17 +245,20 @@ npm run dev -- --port 3000
 **Solution:**
 
 1. **Verify backend is running:**
+
    ```bash
    curl http://localhost:8000/health
    ```
 
 2. **Check VITE_API_BASE:**
+
    ```javascript
    // src/services/api.ts
-   console.log('API Base:', API_BASE)  // Should be http://localhost:8000
+   console.log("API Base:", API_BASE); // Should be http://localhost:8000
    ```
 
 3. **Verify proxy in vite.config.ts:**
+
    ```typescript
    server: {
      proxy: {
@@ -272,32 +290,35 @@ npm run dev -- --port 3000
 **Solution:**
 
 1. **Run type check:**
+
    ```bash
    npm run typecheck
    ```
 
 2. **Check your types are correct:**
+
    ```typescript
    // ❌ Wrong - Player is not a string
    const player: Player = "Harry Kane";
-   
+
    // ✅ Correct
    const player: Player = {
      name: "Harry Kane",
      position: "FWD",
      verdict: "START",
      confidence: 0.95,
-     reasoning: "..."
+     reasoning: "...",
    };
    ```
 
 3. **Import types correctly:**
+
    ```typescript
    // ✅ Correct
-   import type { Player } from '../types';
-   
+   import type { Player } from "../types";
+
    // ❌ Wrong (imports value, not type)
-   import { Player } from '../types';
+   import { Player } from "../types";
    ```
 
 4. **Update tsconfig.json if needed:**
@@ -312,6 +333,7 @@ npm run dev -- --port 3000
 **Error:** `Expected indentation of 2 spaces`
 
 **Solution:**
+
 ```bash
 # Auto-fix all files
 npm run format
@@ -329,23 +351,25 @@ npx prettier --write src/
 **Solution:**
 
 1. **Check file input is correct:**
+
    ```typescript
    // src/components/SquadUploader.tsx
-   const input = document.getElementById('file-input') as HTMLInputElement;
+   const input = document.getElementById("file-input") as HTMLInputElement;
    console.log(input.files);
    ```
 
 2. **Verify FileReader API:**
+
    ```typescript
    const reader = new FileReader();
    reader.onload = (e) => {
-     console.log('Result:', e.target?.result);  // Should be base64 string
+     console.log("Result:", e.target?.result); // Should be base64 string
    };
    ```
 
 3. **Check file size:**
    ```typescript
-   console.log('File size:', file.size / 1024 / 1024, 'MB');  // Should be < 20
+   console.log("File size:", file.size / 1024 / 1024, "MB"); // Should be < 20
    ```
 
 ---
@@ -357,19 +381,21 @@ npx prettier --write src/
 **Solution:**
 
 1. **Check React state hooks:**
+
    ```typescript
    const [loading, setLoading] = useState(false);
-   
+
    // Make sure you're setting state correctly
-   await new Promise(r => setTimeout(r, 0));  // Allow React to update
+   await new Promise((r) => setTimeout(r, 0)); // Allow React to update
    ```
 
 2. **Verify useEffect dependencies:**
+
    ```typescript
    useEffect(() => {
      // Will run every render if deps are missing!
      fetchData();
-   }, []);  // ✅ Always include deps array
+   }, []); // ✅ Always include deps array
    ```
 
 3. **Check Context providers:**
@@ -389,6 +415,7 @@ npx prettier --write src/
 **Error:** `Cannot locate Dockerfile` or `Build context error`
 
 **Solution:**
+
 ```bash
 # Verify Dockerfile exists
 ls -la backend/Dockerfile frontend/Dockerfile
@@ -407,6 +434,7 @@ docker compose build backend --progress=plain
 **Error:** `docker compose up` exits with no output
 
 **Solution:**
+
 ```bash
 # Check logs
 docker compose logs backend
@@ -425,6 +453,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 **Error:** `Cannot reach backend from frontend container`
 
 **Solution:**
+
 ```bash
 # Verify network exists
 docker network ls
@@ -446,6 +475,7 @@ docker compose exec frontend nslookup backend
 **Error:** `Volume mount not found` or `Permission denied`
 
 **Solution:**
+
 ```bash
 # Check volumes
 docker volume ls
@@ -466,6 +496,7 @@ docker compose exec backend chmod -R 755 /app
 **Error:** `Permission denied` or `repository not found`
 
 **Solution:**
+
 ```bash
 # Check SSH key
 cat ~/.ssh/id_rsa.pub
@@ -516,12 +547,14 @@ git push origin main
 **Solutions:**
 
 1. **Check provider API performance:**
+
    ```bash
    time curl "https://api.anthropic.com/v1/messages" \
      -H "x-api-key: $ANTHROPIC_API_KEY"
    ```
 
 2. **Analyze agent pipeline:**
+
    ```python
    # backend/app/utils/logger.py
    # Add timing logs
@@ -545,19 +578,21 @@ git push origin main
 **Solutions:**
 
 1. **Check bundle size:**
+
    ```bash
    npm run build
    npm run analyze
    ```
 
 2. **Enable compression:**
+
    ```bash
    npm run build -- --minify=terser
    ```
 
 3. **Use lazy loading:**
    ```typescript
-   const ResultsPanel = lazy(() => import('./ResultsPanel'));
+   const ResultsPanel = lazy(() => import("./ResultsPanel"));
    ```
 
 ---
@@ -587,6 +622,7 @@ class Analysis(Base):
 ### Corrupted Files in Docker
 
 **Solution:**
+
 ```bash
 # Clear Docker cache
 docker system prune -a
@@ -604,11 +640,13 @@ docker compose up -d
 ### Backend Debugging
 
 **Add to code:**
+
 ```python
 import pdb; pdb.set_trace()
 ```
 
 **Run with debugger:**
+
 ```bash
 python -m pdb -m pytest tests/unit/test_utils.py
 ```
@@ -618,12 +656,14 @@ python -m pdb -m pytest tests/unit/test_utils.py
 ### Frontend Debugging
 
 **Browser DevTools:**
+
 - Press `F12` or `Ctrl+Shift+I`
 - Console tab for errors
 - Network tab for API calls
 - Storage tab for localStorage
 
 **Debug in VSCode:**
+
 ```json
 {
   "version": "0.2.0",
@@ -644,10 +684,11 @@ python -m pdb -m pytest tests/unit/test_utils.py
 ## Getting Help
 
 1. **Check logs:**
+
    ```bash
    # Backend
    docker compose logs backend
-   
+
    # Frontend (browser console)
    F12 → Console
    ```
@@ -666,6 +707,7 @@ python -m pdb -m pytest tests/unit/test_utils.py
 ## Reporting Bugs
 
 Include in issue report:
+
 - [ ] Error message
 - [ ] Steps to reproduce
 - [ ] Expected behavior
