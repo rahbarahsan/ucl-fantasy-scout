@@ -36,7 +36,7 @@ Ask any UCL Fantasy question and get sourced answers:
 
 - **8-Agent AI Pipeline** — Squad Parser → Matchday Validator → Fixture Resolver → Preview Researcher → Form Analyser → Stats Collector → Verdict Engine → Transfer Suggester
 - **Dual AI Provider Support** — Anthropic Claude or Google Gemini (switchable in the UI)
-- **Real-Time Research** — Web searches for match previews, injury news, and rotation hints (optional SerpAPI)
+- **Real-Time Research** — Web searches for match previews, injury news, and rotation hints via SerpAPI
 - **PWA Support** — Installable on mobile with offline shell caching
 - **Client-Side Key Encryption** — API keys are XOR-obfuscated in the browser, AES-256 encrypted server-side
 
@@ -123,7 +123,7 @@ Frontend at http://localhost, backend at http://localhost:8000.
 | `ANTHROPIC_API_KEY` | Yes\*    | Anthropic Claude API key                      |
 | `GEMINI_API_KEY`    | Yes\*    | Google Gemini API key                         |
 | `ENCRYPTION_SECRET` | Yes      | 32+ char secret for AES encryption            |
-| `SERPAPI_KEY`       | No       | SerpAPI key for real web search               |
+| `SERPAPI_KEY`       | Yes      | SerpAPI key for real-time web search          |
 | `ENVIRONMENT`       | No       | `development` (default) or `production`       |
 | `LOG_LEVEL`         | No       | `DEBUG`, `INFO` (default), `WARNING`, `ERROR` |
 
