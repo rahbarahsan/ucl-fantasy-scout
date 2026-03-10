@@ -5,7 +5,7 @@ from typing import Union
 from fastapi import APIRouter, HTTPException, Request
 
 from app.agents.pipeline import run_analysis
-from app.api.middleware.auth import resolve_api_key
+from app.api.middleware.auth import require_api_key
 from app.schemas.analysis import (
     AnalysisRequest,
     AnalysisResponse,
@@ -37,15 +37,7 @@ async def analyse_squad(
         )
 
     # Resolve API key
-    api_key = resolve_api_key(request, provider=body.provider)
-    if not api_key:
-        raise HTTPException(
-            status_code=401,
-            detail=(
-                f"No {body.provider} API key available. "
-                "Please configure it in settings or the server .env file."
-            ),
-        )
+    api_key = require_api_key(request, provider=body.provider)
 
     image_data = strip_data_uri(body.image_base64)
 

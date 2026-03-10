@@ -1,10 +1,10 @@
 """Squad Parser agent — uses vision AI to extract squad data from a screenshot."""
 
-import json
-from typing import Any, Optional
+from typing import Any
 
 from app.agents.squad_parser.prompts import SYSTEM_PROMPT, USER_PROMPT
 from app.providers.base import AIProvider
+from app.utils.json_parser import parse_json_response
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -34,20 +34,7 @@ async def parse_squad(
 
 def _parse_response(raw: str) -> dict[str, Any]:
     """Attempt to parse the model's JSON response."""
-    # Strip markdown code fences if present
-    cleaned = raw.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
-    if cleaned.endswith("```"):
-        cleaned = cleaned[:-3]
-    cleaned = cleaned.strip()
-
-    try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError:
-        logger.error("squad_parser_json_failed", raw_length=len(raw))
-        return {"matchday": None, "players": []}
-
+    data = parse_json_response(raw, fallback={"matchday": None, "players": []})
     return {
         "matchday": data.get("matchday"),
         "players": data.get("players", []),

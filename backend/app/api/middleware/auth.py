@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from fastapi import Request
+from fastapi import HTTPException, Request
 
 from app.config import settings
 from app.utils.encryption import decrypt
@@ -41,3 +41,17 @@ def resolve_api_key(
         return settings.gemini_api_key
 
     return None
+
+
+def require_api_key(request: Request, provider: str = "anthropic") -> str:
+    """Resolve and validate API key, raising HTTPException if unavailable."""
+    api_key = resolve_api_key(request, provider=provider)
+    if not api_key:
+        raise HTTPException(
+            status_code=401,
+            detail=(
+                f"No {provider} API key available. "
+                "Please configure it in settings or the server .env file."
+            ),
+        )
+    return api_key

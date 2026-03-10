@@ -56,7 +56,7 @@ async def _serpapi_search(
     }
 
     # Console output for debugging
-    print(f"\n🔍 SerpAPI SEARCH CALLED")
+    print("\n🔍 SerpAPI SEARCH CALLED")
     print(f"   Query: {query}")
     print(f"   Results: {num_results}")
     print(f"   Recency: {recency_days} days")

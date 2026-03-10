@@ -56,10 +56,10 @@ class AnthropicProvider(AIProvider):
             kwargs["system"] = system_prompt
 
         response = await self._client.messages.create(**kwargs)
-        
+
         # Track token usage
         self._track_usage(response, "analyse_image")
-        
+
         return self._extract_text(response)
 
     async def chat(
@@ -81,10 +81,10 @@ class AnthropicProvider(AIProvider):
             kwargs["tools"] = tools
 
         response = await self._client.messages.create(**kwargs)
-        
+
         # Track token usage
         self._track_usage(response, "chat")
-        
+
         return self._response_to_dict(response)
 
     async def complete(
@@ -104,10 +104,10 @@ class AnthropicProvider(AIProvider):
             kwargs["system"] = system_prompt
 
         response = await self._client.messages.create(**kwargs)
-        
+
         # Track token usage
         self._track_usage(response, "complete")
-        
+
         return self._extract_text(response)
 
     # -- helpers ----------------------------------------------------------

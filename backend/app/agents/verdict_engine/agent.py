@@ -1,12 +1,12 @@
 """Verdict Engine agent — produces START / RISK / BENCH for each player."""
 
-import json
 from typing import Any, Union
 
 from app.agents.verdict_engine.prompts import SYSTEM_PROMPT
 from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
 from app.utils.cache_keys import build_cache_key
+from app.utils.json_parser import parse_json_response
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -103,16 +103,5 @@ def _build_prompt(
 
 def _parse_response(raw: str) -> list[dict[str, Any]]:
     """Parse the JSON verdicts response."""
-    cleaned = raw.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
-    if cleaned.endswith("```"):
-        cleaned = cleaned[:-3]
-    cleaned = cleaned.strip()
-
-    try:
-        data = json.loads(cleaned)
-        return data.get("verdicts", [])
-    except json.JSONDecodeError:
-        logger.error("verdict_engine_json_failed")
-        return []
+    data = parse_json_response(raw, fallback={})
+    return data.get("verdicts", [])

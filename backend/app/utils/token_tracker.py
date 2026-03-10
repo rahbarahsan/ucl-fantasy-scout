@@ -89,7 +89,7 @@ current_tracker: Optional[TokenUsageTracker] = None
 
 def reset_tracker(provider_name: str = "anthropic") -> TokenUsageTracker:
     """Reset the global tracker for a new analysis."""
-    global current_tracker
+    global current_tracker  # pylint: disable=global-statement
     current_tracker = TokenUsageTracker(provider_name)
     logger.info("tracker_reset", provider=provider_name)
     return current_tracker

@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Request
 
-from app.api.middleware.auth import resolve_api_key
+from app.api.middleware.auth import require_api_key
 from app.config import settings
 from app.providers.anthropic import AnthropicProvider
 from app.providers.gemini import GeminiProvider
@@ -28,15 +28,7 @@ async def research_question(
     request: Request,
 ) -> ResearchResponse:
     """Answer a free-form UCL Fantasy research question."""
-    api_key = resolve_api_key(request, provider=body.provider)
-    if not api_key:
-        raise HTTPException(
-            status_code=401,
-            detail=(
-                f"No {body.provider} API key available. "
-                "Please configure it in settings."
-            ),
-        )
+    api_key = require_api_key(request, provider=body.provider)
 
     # Gather web context
     results = await web_search(

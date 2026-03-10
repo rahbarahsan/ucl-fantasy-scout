@@ -1,12 +1,12 @@
 """Transfer Suggester agent — recommends replacements for RISK/BENCH players."""
 
-import json
 from typing import Any, Union
 
 from app.agents.transfer_suggester.prompts import SYSTEM_PROMPT
 from app.cache.cache_manager import cache_manager
 from app.providers.base import AIProvider
 from app.utils.cache_keys import build_cache_key
+from app.utils.json_parser import parse_json_response
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -63,18 +63,7 @@ async def suggest_transfers(
 
 def _parse_response(raw: str) -> dict[str, list[dict[str, Any]]]:
     """Parse transfer suggestions, keyed by the original player name."""
-    cleaned = raw.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
-    if cleaned.endswith("```"):
-        cleaned = cleaned[:-3]
-    cleaned = cleaned.strip()
-
-    try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError:
-        logger.error("transfer_suggester_json_failed")
-        return {}
+    data = parse_json_response(raw, fallback={})
 
     result: dict[str, list[dict[str, Any]]] = {}
     for entry in data.get("suggestions", []):

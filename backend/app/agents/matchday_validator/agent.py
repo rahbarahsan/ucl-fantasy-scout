@@ -1,10 +1,10 @@
 """Matchday Validator agent — confirms matchday or requests clarification."""
 
-import json
 from typing import Any, Optional
 
 from app.agents.matchday_validator.prompts import SYSTEM_PROMPT
 from app.providers.base import AIProvider
+from app.utils.json_parser import parse_json_response
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -57,26 +57,18 @@ async def validate_matchday(
 
 def _parse_response(raw: str, fallback_matchday: Optional[str]) -> dict[str, Any]:
     """Parse the JSON validation response from the model."""
-    cleaned = raw.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
-    if cleaned.endswith("```"):
-        cleaned = cleaned[:-3]
-    cleaned = cleaned.strip()
-
-    try:
-        data = json.loads(cleaned)
-        return {
-            "matchday": data.get("matchday", fallback_matchday),
-            "confirmed": data.get("confirmed", False),
-            "early_warning": data.get("early_warning", False),
-            "message": data.get("message"),
-        }
-    except json.JSONDecodeError:
-        logger.error("matchday_validator_json_failed")
-        return {
+    data = parse_json_response(
+        raw,
+        fallback={
             "matchday": fallback_matchday,
             "confirmed": bool(fallback_matchday),
             "early_warning": False,
             "message": None,
-        }
+        },
+    )
+    return {
+        "matchday": data.get("matchday", fallback_matchday),
+        "confirmed": data.get("confirmed", False),
+        "early_warning": data.get("early_warning", False),
+        "message": data.get("message"),
+    }

@@ -10,7 +10,9 @@ class AnalysisRequest(BaseModel):
 
     image_base64: str = Field(
         ...,
-        description="Base64-encoded squad screenshot (with or without data-URI prefix).",
+        description=(
+            "Base64-encoded squad screenshot " "(with or without data-URI prefix)."
+        ),
     )
     matchday: Optional[str] = Field(
         default=None,
@@ -61,5 +63,6 @@ class MatchdayClarification(BaseModel):
 
     needs_clarification: bool = True
     message: str = (
-        "We could not confirm the matchday from your screenshot. Could you tell us which matchday this is?"
+        "We could not confirm the matchday from your screenshot. "
+        "Could you tell us which matchday this is?"
     )

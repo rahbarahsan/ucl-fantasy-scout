@@ -45,6 +45,7 @@ def _get_provider(
     raise ValueError(f"Unknown provider: {provider_name}")
 
 
+# pylint: disable=too-many-locals,too-many-statements
 async def run_analysis(
     image_base64: str,
     provider_name: str = "anthropic",
@@ -155,7 +156,8 @@ async def run_analysis(
     suggestions_cache_key = suggestions_result["cache_key"]
 
     print(
-        f"✅ Agent 8 (Transfer Suggester): Cached {suggestions_result['count']} suggestions"
+        f"✅ Agent 8 (Transfer Suggester): "
+        f"Cached {suggestions_result['count']} suggestions"
     )
     print(f"   Cache Key: {suggestions_cache_key}\n")
 
